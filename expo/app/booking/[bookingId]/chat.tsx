@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   View,
@@ -9,32 +10,62 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
-import { BOOKINGS, getMessagesForBooking, getProviderById } from '@/data/mock';
+import { getMessagesForBooking } from '@/data/mock';
+import { useBooking } from '@/hooks/use-data';
+import { useAuth } from '@/hooks/auth-store';
 import type { Message } from '@/types';
 import { LogoutButton } from '@/components/LogoutButton';
 import { BackButton } from '@/components/BackButton';
 
 export default function BookingChatScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
-  const booking = BOOKINGS.find(b => b.id === bookingId);
-  const provider = booking ? getProviderById(booking.providerId) : undefined;
-  const [messages, setMessages] = useState<Message[]>(() => booking ? getMessagesForBooking(booking.id) : []);
+  const { data: booking, isLoading } = useBooking(bookingId);
+  const { user } = useAuth();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const scrollRef = useRef<ScrollView>(null);
+  // Seed bundled conversation history once per booking id (live bookings start empty).
+  const seededForRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (booking && seededForRef.current !== booking.id) {
+      seededForRef.current = booking.id;
+      setMessages(getMessagesForBooking(booking.id));
+    }
+  }, [booking]);
 
   useEffect(() => {
     scrollRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
-  if (!booking) {
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text>Booking not found</Text>
+        <View style={styles.centerWrap}>
+          <ActivityIndicator size="large" color={COLORS.navy} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <BackButton style={styles.backBtn} color={COLORS.white} />
+          <View style={styles.headerInfo} />
+          <LogoutButton color={COLORS.white} />
+        </View>
+        <View style={styles.centerWrap}>
+          <Text style={styles.notFoundTitle}>Booking not found</Text>
+          <Text style={styles.notFoundSubtext}>
+            This booking may have been removed. Go back to see your bookings.
+          </Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -44,8 +75,8 @@ export default function BookingChatScreen() {
     const newMsg: Message = {
       id: `msg_${Date.now()}`,
       bookingId: booking.id,
-      senderId: 'user_me',
-      senderName: 'You',
+      senderId: user?.id ?? 'user_me',
+      senderName: user?.name ?? 'You',
       senderRole: 'CUSTOMER',
       text: inputText.trim(),
       isRead: true,
@@ -122,6 +153,15 @@ export default function BookingChatScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
+  centerWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
+    gap: SPACING.sm,
+  },
+  notFoundTitle: { fontSize: 16, fontWeight: '700', color: COLORS.textPrimary },
+  notFoundSubtext: { fontSize: 13, color: COLORS.textTertiary, textAlign: 'center' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

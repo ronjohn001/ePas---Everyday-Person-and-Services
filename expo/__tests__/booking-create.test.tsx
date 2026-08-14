@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { Mock } from 'jest-mock';
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 
 import CreateBookingScreen from '@/app/booking/create';
-import { useJob, useProvider } from '@/hooks/use-data';
+import { useCreateBooking, useJob, useProvider } from '@/hooks/use-data';
 
 /**
  * Screen-level guard for the "Query data cannot be undefined" incident:
@@ -96,5 +97,28 @@ describe('Create booking screen', () => {
     expect(screen.getByText('New Booking')).toBeTruthy();
     expect(screen.getByText('Plumbing Repair')).toBeTruthy();
     expect(screen.getByText('Mariama Conteh')).toBeTruthy();
+  });
+
+  it('navigates straight to the new booking on success — not gated behind a native alert', async () => {
+    (useJob as unknown as Mock).mockReturnValue({ data: JOB, isLoading: false });
+    (useProvider as unknown as Mock).mockReturnValue({ data: PROVIDER, isLoading: false });
+
+    let successCb: ((b: { id: string }) => void) | undefined;
+    (useCreateBooking as unknown as Mock).mockReturnValue({
+      mutate: jest.fn((_vars: unknown, opts: { onSuccess?: (b: { id: string }) => void }) => {
+        successCb = opts?.onSuccess;
+      }),
+      isPending: false,
+    });
+
+    await render(<CreateBookingScreen />);
+    await fireEvent.changeText(screen.getByPlaceholderText('Enter full address'), '12 Main Street, Freetown');
+    await fireEvent.press(screen.getByText('Confirm Booking'));
+
+    expect(successCb).toBeDefined();
+    // Alert.alert is a no-op on web: the old flow only navigated from its OK
+    // button, so the user was stranded after a successful booking.
+    successCb?.({ id: 'bk_new' });
+    expect(router.replace).toHaveBeenCalledWith('/booking/bk_new');
   });
 });

@@ -1,6 +1,7 @@
 import { useLocalSearchParams, router, Link } from 'expo-router';
 import { useMemo } from 'react';
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   View,
@@ -11,12 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
-import {
-  getJobById,
-  getCategoryById,
-  getProvidersForJob,
-  formatNLe,
-} from '@/data/mock';
+import { useCategories, useJob, useProviders } from '@/hooks/use-data';
+import { formatNLe } from '@/data/mock';
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
 import { LogoutButton } from '@/components/LogoutButton';
@@ -24,14 +21,41 @@ import { BackButton } from '@/components/BackButton';
 
 export default function ServiceJobDetailScreen() {
   const { serviceJobId } = useLocalSearchParams<{ serviceJobId: string }>();
-  const job = getJobById(serviceJobId);
-  const category = job ? getCategoryById(job.categoryId) : undefined;
-  const providers = useMemo(() => job ? getProvidersForJob(job.id) : [], [job]);
+  const { data: job, isLoading: jobLoading } = useJob(serviceJobId);
+  const { data: categories } = useCategories();
+  const { data: allProviders } = useProviders();
+
+  const category = useMemo(
+    () => (job ? (categories ?? []).find((c) => c.id === job.categoryId) : undefined),
+    [job, categories],
+  );
+  const providers = useMemo(
+    () => (job ? (allProviders ?? []).filter((p) => job.providerIds.includes(p.id)) : []),
+    [job, allProviders],
+  );
+
+  if (jobLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centerWrap}>
+          <ActivityIndicator size="large" color={COLORS.navy} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!job) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text>Service not found</Text>
+        <View style={styles.notFoundHeader}>
+          <BackButton style={styles.backBtn} color={COLORS.white} />
+        </View>
+        <View style={styles.centerWrap}>
+          <Text style={styles.notFoundTitle}>Service not found</Text>
+          <Text style={styles.notFoundSubtext}>
+            This service may no longer be available. Go back and pick another one.
+          </Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -111,7 +135,16 @@ export default function ServiceJobDetailScreen() {
             <Text style={styles.providersCount}>{providers.length} found</Text>
           </View>
           <View style={styles.providersList}>
-            {providers.map((provider) => (
+            {providers.length === 0 ? (
+              <View style={styles.emptyProviders}>
+                <Ionicons name="people-outline" size={28} color={COLORS.textTertiary} />
+                <Text style={styles.emptyProvidersTitle}>No providers available yet</Text>
+                <Text style={styles.emptyProvidersText}>
+                  New traders join every day — check back soon.
+                </Text>
+              </View>
+            ) : (
+              providers.map((provider) => (
               <Link key={provider.id} href={`/provider/${provider.id}`} asChild>
                 <TouchableOpacity style={styles.providerCard} activeOpacity={0.7}>
                   <View style={styles.providerLeft}>
@@ -155,7 +188,8 @@ export default function ServiceJobDetailScreen() {
                   </View>
                 </TouchableOpacity>
               </Link>
-            ))}
+              ))
+            )}
           </View>
         </View>
 
@@ -167,6 +201,28 @@ export default function ServiceJobDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
+  centerWrap: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SPACING.xl },
+  notFoundHeader: {
+    backgroundColor: COLORS.navy,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+  },
+  notFoundTitle: { fontSize: 16, fontWeight: '700', color: COLORS.textPrimary },
+  notFoundSubtext: {
+    fontSize: 13,
+    color: COLORS.textTertiary,
+    textAlign: 'center',
+    marginTop: 6,
+  },
+  emptyProviders: {
+    alignItems: 'center',
+    backgroundColor: COLORS.cardBg,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.xl,
+    gap: SPACING.sm,
+  },
+  emptyProvidersTitle: { fontSize: 15, fontWeight: '600', color: COLORS.textPrimary },
+  emptyProvidersText: { fontSize: 13, color: COLORS.textTertiary, textAlign: 'center' },
   header: {
     paddingHorizontal: SPACING.lg,
     paddingBottom: SPACING.xl,

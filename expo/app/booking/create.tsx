@@ -1,5 +1,5 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -33,6 +32,7 @@ export default function CreateBookingScreen() {
   const [notes, setNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('ORANGE_MONEY');
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const basePrice = job?.basePrice ?? 0;
   const assessmentFee = job?.assessmentFee ?? 0;
@@ -42,8 +42,18 @@ export default function CreateBookingScreen() {
 
   if (!job || !provider) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text>Booking information not found</Text>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <BackButton style={styles.backBtn} color={COLORS.white} />
+          <Text style={styles.headerTitle}>New Booking</Text>
+          <View style={styles.headerSpacer} />
+        </View>
+        <View style={styles.notFoundWrap}>
+          <Text style={styles.notFoundTitle}>Booking information not found</Text>
+          <Text style={styles.notFoundSubtext}>
+            This provider or service may no longer be available. Go back and pick another one.
+          </Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -51,9 +61,10 @@ export default function CreateBookingScreen() {
   const handleConfirm = () => {
     if (!user) return;
     if (!address.trim()) {
-      Alert.alert('Missing Address', 'Please enter the service address.');
+      setSubmitError('Please enter the service address.');
       return;
     }
+    setSubmitError(null);
     createBooking.mutate(
       {
         customerId: user.id,
@@ -75,14 +86,12 @@ export default function CreateBookingScreen() {
         paymentMethod,
       },
       {
+        // Navigate immediately — Alert.alert is a no-op on web, so gating
+        // navigation on its OK button would strand the user on this screen.
         onSuccess: ({ id }) => {
-          Alert.alert(
-            'Booking Confirmed',
-            `Your booking for ${job.name} has been created. ${provider.name} will be notified.`,
-            [{ text: 'OK', onPress: () => router.replace(`/booking/${id}`) }],
-          );
+          router.replace(`/booking/${id}`);
         },
-        onError: (e) => Alert.alert('Booking failed', (e as Error).message),
+        onError: (e) => setSubmitError((e as Error).message),
       },
     );
   };
@@ -272,21 +281,29 @@ export default function CreateBookingScreen() {
 
       {/* Confirm button */}
       <View style={styles.bottomBar}>
-        <View style={styles.bottomPrice}>
-          <Text style={styles.bottomPriceLabel}>Total</Text>
-          <Text style={styles.bottomPriceValue}>{formatNLe(total)}</Text>
+        {submitError ? (
+          <View style={styles.submitErrorRow}>
+            <Ionicons name="alert-circle" size={14} color={COLORS.error} />
+            <Text style={styles.submitErrorText}>{submitError}</Text>
+          </View>
+        ) : null}
+        <View style={styles.bottomRow}>
+          <View style={styles.bottomPrice}>
+            <Text style={styles.bottomPriceLabel}>Total</Text>
+            <Text style={styles.bottomPriceValue}>{formatNLe(total)}</Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.confirmBtn, createBooking.isPending && { opacity: 0.7 }]}
+            onPress={handleConfirm}
+            disabled={createBooking.isPending}
+          >
+            {createBooking.isPending ? (
+              <ActivityIndicator color={COLORS.white} />
+            ) : (
+              <Text style={styles.confirmBtnText}>Confirm Booking</Text>
+            )}
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={[styles.confirmBtn, createBooking.isPending && { opacity: 0.7 }]}
-          onPress={handleConfirm}
-          disabled={createBooking.isPending}
-        >
-          {createBooking.isPending ? (
-            <ActivityIndicator color={COLORS.white} />
-          ) : (
-            <Text style={styles.confirmBtnText}>Confirm Booking</Text>
-          )}
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -313,6 +330,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: COLORS.white,
+  },
+  headerSpacer: { width: 40, height: 40 },
+  notFoundWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
+    gap: SPACING.sm,
+  },
+  notFoundTitle: { fontSize: 16, fontWeight: '700', color: COLORS.textPrimary },
+  notFoundSubtext: {
+    fontSize: 13,
+    color: COLORS.textTertiary,
+    textAlign: 'center',
   },
   summaryCard: {
     flexDirection: 'row',
@@ -558,15 +589,24 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: COLORS.white,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
-    gap: SPACING.md,
     borderTopWidth: 1,
     borderTopColor: COLORS.divider,
   },
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+  },
+  submitErrorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: SPACING.sm,
+  },
+  submitErrorText: { fontSize: 13, color: COLORS.error, flex: 1 },
   bottomPrice: {},
   bottomPriceLabel: {
     fontSize: 12,
