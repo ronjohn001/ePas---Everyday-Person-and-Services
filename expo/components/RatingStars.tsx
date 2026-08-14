@@ -29,7 +29,7 @@ export function RatingStars({ rating, size = 14, showNumber = false, color = '#F
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessible accessibilityLabel={`Rating: ${rating} out of 5`}>
       {stars}
       {showNumber && (
         <View style={styles.numberWrap}>

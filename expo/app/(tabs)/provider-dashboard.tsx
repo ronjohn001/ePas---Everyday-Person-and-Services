@@ -118,7 +118,7 @@ export default function ProviderDashboardScreen() {
           <View style={styles.profileHero}>
             <View style={[styles.profileGlow, { backgroundColor: accent.glow }]} />
             {isHeroMinimised ? (
-              <TouchableOpacity style={styles.heroMiniRow} onPress={() => setIsHeroMinimised(false)} activeOpacity={0.75}>
+              <TouchableOpacity style={styles.heroMiniRow} onPress={() => setIsHeroMinimised(false)} activeOpacity={0.75} accessibilityRole="button" accessibilityLabel="Expand profile">
                 {photoUri ? (
                   <Image source={{ uri: photoUri }} style={styles.heroMiniAvatarImg} contentFit="cover" transition={200} />
                 ) : (
@@ -175,6 +175,8 @@ export default function ProviderDashboardScreen() {
                     onPress={() => setIsHeroMinimised(true)}
                     hitSlop={8}
                     activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel="Minimise profile"
                   >
                     <Ionicons name="chevron-up" size={15} color={COLORS.textSecondary} />
                   </TouchableOpacity>

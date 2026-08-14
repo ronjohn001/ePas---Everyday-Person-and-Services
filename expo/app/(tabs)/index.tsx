@@ -137,7 +137,7 @@ export default function HomeScreen() {
           {/* Profile hero — in view on open, minimisable */}
           {!searchQuery && (
             isHeroMinimised ? (
-              <TouchableOpacity style={styles.heroMini} onPress={() => setIsHeroMinimised(false)} activeOpacity={0.8}>
+              <TouchableOpacity style={styles.heroMini} onPress={() => setIsHeroMinimised(false)} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Expand profile">
                 {user?.profilePhoto ? (
                   <Image source={{ uri: user.profilePhoto }} style={styles.heroMiniAvatarImg} contentFit="cover" transition={200} />
                 ) : (
@@ -184,6 +184,8 @@ export default function HomeScreen() {
                         onPress={() => setIsHeroMinimised(true)}
                         hitSlop={8}
                         activeOpacity={0.7}
+                        accessibilityRole="button"
+                        accessibilityLabel="Minimise profile"
                       >
                         <Ionicons name="chevron-up" size={16} color={COLORS.textSecondary} />
                       </TouchableOpacity>
