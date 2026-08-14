@@ -8,6 +8,7 @@ import { ScreenBackground } from '@/components/ScreenBackground';
 import { RatingStars } from '@/components/RatingStars';
 import { useAuth } from '@/hooks/auth-store';
 import { useCustomerBookings, useReviewsByCustomer } from '@/hooks/use-data';
+import { BackButton } from '@/components/BackButton';
 
 /** Every review the signed-in customer has given, plus prompts for completed jobs still awaiting one. */
 export default function MyReviewsScreen() {
@@ -22,15 +23,6 @@ export default function MyReviewsScreen() {
     [myBookings],
   );
 
-  // The auth gate can replace the stack — fall back to the customer home if there's no history.
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(tabs)');
-    }
-  };
-
   const onRefresh = () => {
     setRefreshing(true);
     Promise.all([refetchBookings(), refetchReviews()]).finally(() => setRefreshing(false));
@@ -40,9 +32,7 @@ export default function MyReviewsScreen() {
     <ScreenBackground>
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn} onPress={goBack} activeOpacity={0.7}>
-            <Ionicons name="arrow-back" size={20} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <BackButton style={styles.iconBtn} size={20} />
           <Text style={styles.headerTitle}>My Reviews</Text>
           <View style={styles.countChip}>
             <Text style={styles.countText}>{myReviews.length} given</Text>

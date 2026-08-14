@@ -1,10 +1,10 @@
-import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { ScreenBackground } from '@/components/ScreenBackground';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 interface TermsSection {
   id: string;
@@ -71,9 +71,7 @@ export default function TermsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.textPrimary} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} />
         <Text style={styles.headerTitle}>Terms & Conditions</Text>
         <LogoutButton color={COLORS.textPrimary} />
       </View>

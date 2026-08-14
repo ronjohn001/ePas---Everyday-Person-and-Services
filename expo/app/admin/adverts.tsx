@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   StyleSheet,
@@ -23,6 +22,7 @@ import { TextField, NumberField, ColorPicker, IconPicker } from '@/components/Ad
 import { useAds } from '@/hooks/ad-store';
 import type { Advertisement } from '@/types';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 type ModalMode = 'edit' | 'add' | null;
 
@@ -154,9 +154,7 @@ export default function AdminAdvertsScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <BackButton style={styles.backBtn} />
           <Text style={styles.headerTitle}>Advert Management</Text>
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.addBtn} onPress={openAdd}>

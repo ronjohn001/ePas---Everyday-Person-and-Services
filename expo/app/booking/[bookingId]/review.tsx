@@ -16,6 +16,7 @@ import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { useAuth } from '@/hooks/auth-store';
 import { useBooking, useCreateReview } from '@/hooks/use-data';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 
 export default function ReviewScreen() {
@@ -89,9 +90,7 @@ export default function ReviewScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} color={COLORS.white} />
         <Text style={styles.headerTitle}>Leave a Review</Text>
         <LogoutButton color={COLORS.white} />
       </View>

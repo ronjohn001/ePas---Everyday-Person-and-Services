@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   StyleSheet,
@@ -14,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { CATEGORIES, PROVIDER_SUGGESTIONS } from '@/data/mock';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 const STATUS_CONFIG = {
   PENDING: { color: COLORS.warning, label: 'Pending' },
@@ -58,9 +58,7 @@ export default function ProviderSuggestionScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.textPrimary} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} />
         <Text style={styles.headerTitle}>Suggest a Provider</Text>
         <LogoutButton color={COLORS.textPrimary} />
       </View>

@@ -16,9 +16,12 @@ import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { useAuth } from '@/hooks/auth-store';
 import { useCategories, useProviderForUser, useUpsertProviderProfile } from '@/hooks/use-data';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
+import { useSafeGoBack } from '@/hooks/use-safe-go-back';
 
 export default function ProviderOnboardingScreen() {
   const { user } = useAuth();
+  const goBack = useSafeGoBack();
   const { data: existing } = useProviderForUser(user?.id);
   const { data: categories = [] } = useCategories();
   const upsert = useUpsertProviderProfile();
@@ -76,7 +79,7 @@ export default function ProviderOnboardingScreen() {
               {
                 text: 'OK',
                 onPress: () => {
-                  if (alreadyApproved) router.back();
+                  if (alreadyApproved) goBack();
                   else router.replace('/pending-approval');
                 },
               },
@@ -91,9 +94,7 @@ export default function ProviderOnboardingScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} color={COLORS.white} />
         <Text style={styles.headerTitle}>Provider Onboarding</Text>
         <LogoutButton color={COLORS.white} />
       </View>

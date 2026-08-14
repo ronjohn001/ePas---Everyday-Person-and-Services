@@ -20,6 +20,7 @@ import {
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 export default function ServiceJobDetailScreen() {
   const { serviceJobId } = useLocalSearchParams<{ serviceJobId: string }>();
@@ -44,9 +45,7 @@ export default function ServiceJobDetailScreen() {
           style={styles.header}
         >
           <View style={styles.headerNav}>
-            <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-            </TouchableOpacity>
+            <BackButton style={styles.backBtn} color={COLORS.white} />
             <LogoutButton color={COLORS.white} />
           </View>
           <View style={styles.headerContent}>

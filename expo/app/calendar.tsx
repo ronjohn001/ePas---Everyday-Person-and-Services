@@ -1,11 +1,10 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, ROLE_ACCENT } from '@/constants/colors';
 import { ScreenBackground } from '@/components/ScreenBackground';
 import { BookingCalendar } from '@/components/BookingCalendar';
+import { BackButton } from '@/components/BackButton';
 import { useAuth } from '@/hooks/auth-store';
 import { useCustomerBookings, useProviderBookings, useProviderForUser } from '@/hooks/use-data';
 
@@ -26,15 +25,6 @@ export default function CalendarScreen() {
 
   const upcomingCount = bookings.filter((b) => ACTIVE_STATUSES.includes(b.status)).length;
 
-  // The auth gate can replace the stack — fall back to the role's home if there's no history.
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace(isProvider ? '/(tabs)/provider-dashboard' : '/(tabs)');
-    }
-  };
-
   const onRefresh = () => {
     setRefreshing(true);
     activeQuery.refetch().finally(() => setRefreshing(false));
@@ -44,9 +34,7 @@ export default function CalendarScreen() {
     <ScreenBackground variant={isProvider ? 'provider' : 'default'}>
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn} onPress={goBack} activeOpacity={0.7}>
-            <Ionicons name="arrow-back" size={20} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <BackButton style={styles.iconBtn} size={20} />
           <Text style={styles.headerTitle}>{isProvider ? 'My Calendar' : 'Your Calendar'}</Text>
           <View style={[styles.countChip, { backgroundColor: `${accent}18`, borderColor: `${accent}40` }]}>
             <Text style={[styles.countText, { color: accent }]}>{upcomingCount} upcoming</Text>

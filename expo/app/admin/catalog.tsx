@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   StyleSheet,
@@ -21,6 +20,7 @@ import { useCatalog } from '@/hooks/catalog-store';
 import { formatNLe } from '@/data/mock';
 import type { ServiceCategory, ServiceJob } from '@/types';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 type ModalMode = 'category-edit' | 'category-add' | 'job-edit' | 'job-add' | null;
 
@@ -238,9 +238,7 @@ export default function AdminCatalogScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <BackButton style={styles.backBtn} />
           <Text style={styles.headerTitle}>Catalog Management</Text>
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.addBtn} onPress={openCategoryAdd}>

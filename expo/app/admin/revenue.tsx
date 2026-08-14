@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import {
   StyleSheet,
   Text,
@@ -11,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { ADMIN_REVENUE, formatNLe } from '@/data/mock';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 export default function AdminRevenueScreen() {
   const stats = [
@@ -29,9 +29,7 @@ export default function AdminRevenueScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} color={COLORS.white} />
         <Text style={styles.headerTitle}>Revenue Dashboard</Text>
         <LogoutButton color={COLORS.white} />
       </View>

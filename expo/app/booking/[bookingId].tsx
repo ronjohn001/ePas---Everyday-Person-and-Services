@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/auth-store';
 import { useBooking, useUpdateBookingStatus } from '@/hooks/use-data';
 import { StatusBadge } from '@/components/StatusBadge';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 import { ScreenBackground } from '@/components/ScreenBackground';
 import type { Message, BookingStatus } from '@/types';
 
@@ -70,9 +71,7 @@ export default function BookingDetailScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} color={COLORS.white} />
         <Text style={styles.headerTitle}>Booking Details</Text>
         <LogoutButton color={COLORS.white} />
       </View>

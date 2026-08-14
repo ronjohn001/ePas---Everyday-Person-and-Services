@@ -1,4 +1,4 @@
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
@@ -17,6 +17,7 @@ import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { BOOKINGS, getMessagesForBooking, getProviderById } from '@/data/mock';
 import type { Message } from '@/types';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 export default function BookingChatScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
@@ -58,9 +59,7 @@ export default function BookingChatScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} color={COLORS.white} />
         <View style={styles.headerInfo}>
           <Text style={styles.headerName}>{booking.providerName}</Text>
           <Text style={styles.headerService}>{booking.serviceJobName}</Text>

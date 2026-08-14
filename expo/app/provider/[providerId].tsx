@@ -17,6 +17,7 @@ import { useProvider, useReviewsForProvider, useAllJobs, useCategories } from '@
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 import { ScreenBackground } from '@/components/ScreenBackground';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -63,9 +64,7 @@ export default function ProviderProfileScreen() {
           style={styles.header}
         >
           <View style={styles.headerNav}>
-            <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-            </TouchableOpacity>
+            <BackButton style={styles.backBtn} color={COLORS.white} />
             <View style={styles.headerNavRight}>
               <TouchableOpacity style={styles.shareBtn}>
                 <Ionicons name="share-outline" size={22} color={COLORS.white} />

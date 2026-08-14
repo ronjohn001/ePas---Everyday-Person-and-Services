@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   StyleSheet,
@@ -17,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { ScreenBackground } from '@/components/ScreenBackground';
+import { BackButton } from '@/components/BackButton';
 import { useAuth } from '@/hooks/auth-store';
 import {
   useNotifications,
@@ -72,21 +72,6 @@ export default function NotificationsScreen() {
 
   const saving = createMut.isPending || updateMut.isPending;
   const unreadCount = scope === 'mine' ? notifications.filter((n) => !n.isRead).length : 0;
-
-  // The auth gate replaces the stack, so back-history may be empty — land on the role home instead of trapping the user.
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace(
-        user?.role === 'ADMIN'
-          ? '/(tabs)/admin-overview'
-          : user?.role === 'PROVIDER'
-            ? '/(tabs)/provider-dashboard'
-            : '/(tabs)'
-      );
-    }
-  };
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -153,9 +138,7 @@ export default function NotificationsScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header — back always works, plus quick actions */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn} onPress={goBack} activeOpacity={0.7}>
-            <Ionicons name="arrow-back" size={20} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <BackButton style={styles.iconBtn} size={20} />
           <Text style={styles.headerTitle}>Notifications</Text>
           <View style={styles.headerRight}>
             {unreadCount > 0 && (

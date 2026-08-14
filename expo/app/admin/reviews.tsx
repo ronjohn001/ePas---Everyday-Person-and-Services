@@ -1,5 +1,4 @@
 import { useAuth } from '@/hooks/auth-store';
-import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   StyleSheet,
@@ -17,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, ROLE_ACCENT } from '@/constants/colors';
 import { ScreenBackground } from '@/components/ScreenBackground';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 import { RatingStars } from '@/components/RatingStars';
 import {
   useAllReviews,
@@ -156,9 +156,7 @@ export default function AdminReviewsScreen() {
     <ScreenBackground variant="admin">
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Ionicons name="arrow-back" size={24} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <BackButton size={24} />
           <Text style={styles.headerTitle}>Reviews</Text>
           <LogoutButton color={COLORS.textPrimary} />
         </View>

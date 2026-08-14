@@ -8,6 +8,7 @@ import { ScreenBackground } from '@/components/ScreenBackground';
 import { useAuth } from '@/hooks/auth-store';
 import { useCustomerBookings } from '@/hooks/use-data';
 import { useCatalog } from '@/hooks/catalog-store';
+import { BackButton } from '@/components/BackButton';
 
 interface FavTrader {
   providerId: string;
@@ -82,15 +83,6 @@ export default function FavouritesScreen() {
 
   const isEmpty = favTraders.length === 0 && favServices.length === 0 && recentSearches.length === 0;
 
-  // The auth gate can replace the stack — fall back to the customer home if there's no history.
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(tabs)');
-    }
-  };
-
   const onRefresh = () => {
     setRefreshing(true);
     refetch().finally(() => setRefreshing(false));
@@ -104,9 +96,7 @@ export default function FavouritesScreen() {
     <ScreenBackground>
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn} onPress={goBack} activeOpacity={0.7}>
-            <Ionicons name="arrow-back" size={20} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <BackButton style={styles.iconBtn} size={20} />
           <Text style={styles.headerTitle}>Favourites</Text>
           <View style={styles.countChip}>
             <Ionicons name="heart" size={11} color={COLORS.magenta} />

@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import {
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { LOYALTY, POINT_TRANSACTIONS } from '@/data/mock';
 import type { PointType } from '@/types';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 const TYPE_CONFIG: Record<PointType, { color: string; icon: string; sign: string }> = {
   EARNED: { color: COLORS.green, icon: 'trending-up', sign: '+' },
@@ -27,9 +27,7 @@ export default function LoyaltyScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} color={COLORS.white} />
         <Text style={styles.headerTitle}>Loyalty Points</Text>
         <LogoutButton color={COLORS.white} />
       </View>

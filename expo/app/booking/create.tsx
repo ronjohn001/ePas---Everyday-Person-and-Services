@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/auth-store';
 import { useJob, useProvider, useCreateBooking } from '@/hooks/use-data';
 import type { BookingType, PaymentMethod } from '@/types';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 
 export default function CreateBookingScreen() {
   const { jobId, providerId } = useLocalSearchParams<{ jobId: string; providerId: string }>();
@@ -90,9 +91,7 @@ export default function CreateBookingScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} color={COLORS.white} />
         <Text style={styles.headerTitle}>New Booking</Text>
         <LogoutButton color={COLORS.white} />
       </View>

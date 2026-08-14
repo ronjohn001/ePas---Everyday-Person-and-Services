@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState, useMemo } from 'react';
 import {
   StyleSheet,
@@ -13,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { TRANSACTIONS, formatNLe } from '@/data/mock';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 import type { PaymentStatus } from '@/types';
 
 const STATUS_CONFIG: Record<PaymentStatus, { color: string; label: string }> = {
@@ -42,9 +42,7 @@ export default function TransactionsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.textPrimary} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} />
         <Text style={styles.headerTitle}>Transactions</Text>
         <LogoutButton color={COLORS.textPrimary} />
       </View>

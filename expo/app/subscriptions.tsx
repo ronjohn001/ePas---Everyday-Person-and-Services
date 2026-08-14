@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import {
   StyleSheet,
   Text,
@@ -12,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { SUBSCRIPTIONS, formatNLe } from '@/data/mock';
 import { LogoutButton } from '@/components/LogoutButton';
+import { BackButton } from '@/components/BackButton';
 import type { SubscriptionTier } from '@/types';
 
 const TIER_CONFIG: Record<SubscriptionTier, { color: string; icon: string; gradient: [string, string] }> = {
@@ -35,9 +35,7 @@ export default function SubscriptionsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.textPrimary} />
-        </TouchableOpacity>
+        <BackButton style={styles.backBtn} />
         <Text style={styles.headerTitle}>Subscriptions</Text>
         <LogoutButton color={COLORS.textPrimary} />
       </View>
