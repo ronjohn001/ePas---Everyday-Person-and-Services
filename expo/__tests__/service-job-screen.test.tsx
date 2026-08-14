@@ -44,6 +44,7 @@ jest.mock('@/hooks/auth-store', () => ({
       role: 'CUSTOMER' as const,
       accountType: 'PRIVATE' as const,
       approvalStatus: 'APPROVED' as const,
+      area: 'Lumley',
       createdAt: '2026-01-01T00:00:00.000Z',
     },
     logout: jest.fn(),
@@ -63,9 +64,6 @@ const JOB = {
   description: 'Professional personal driver service',
   icon: 'car',
   color: '#1A3C6E',
-  basePrice: 300,
-  assessmentFee: 0,
-  estimatedDuration: 'Per day',
   providerIds: ['prov-live-1'],
 };
 
@@ -81,7 +79,7 @@ const LIVE_PROVIDER = {
   totalReviews: 31,
   completedJobs: 120,
   badgeLevel: 'MASTER' as const,
-  serviceAreas: ['Freetown'],
+  serviceAreas: ['Kissy'],
   serviceCategoryIds: ['cat6'],
   responseTime: '~30min',
   verified: true,
@@ -104,6 +102,8 @@ describe('Service job detail screen (live data)', () => {
     expect(screen.getByText('Mohamed Bangura')).toBeTruthy();
     // Isatu Gbla exists only in the bundled mock catalog for this job.
     expect(screen.queryByText('Isatu Gbla')).toBeNull();
+    // Customer is in Lumley, trader serves Kissy → distance chip appears.
+    expect(screen.getByText(/km away|Nearby/)).toBeTruthy();
   });
 
   it('Book navigates to booking/create with the live provider id', async () => {

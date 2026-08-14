@@ -20,6 +20,8 @@ jest.mock('expo-router', () => ({
   Link: ({ children }: { children?: ReactNode }) => children ?? null,
 }));
 
+let mockUserArea: string | undefined = 'Lumley';
+
 jest.mock('@/hooks/auth-store', () => ({
   useAuth: () => ({
     user: {
@@ -31,6 +33,7 @@ jest.mock('@/hooks/auth-store', () => ({
       role: 'CUSTOMER' as const,
       accountType: 'PRIVATE' as const,
       approvalStatus: 'APPROVED' as const,
+      area: mockUserArea,
       createdAt: '2026-01-01T00:00:00.000Z',
     },
     logout: jest.fn(),
@@ -50,9 +53,6 @@ const JOB = {
   description: 'Fix leaks and burst pipes',
   icon: 'water',
   color: '#4FC3F7',
-  basePrice: 250,
-  assessmentFee: 50,
-  estimatedDuration: '1-2h',
   providerIds: ['prov-1'],
 };
 
@@ -76,6 +76,7 @@ const PROVIDER = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUserArea = 'Lumley';
   // Default: both lookups come back empty — the reported crash scenario.
   (useJob as unknown as Mock).mockReturnValue({ data: null, isLoading: false });
   (useProvider as unknown as Mock).mockReturnValue({ data: null, isLoading: false });
@@ -120,5 +121,25 @@ describe('Create booking screen', () => {
     // button, so the user was stranded after a successful booking.
     successCb?.({ id: 'bk_new' });
     expect(router.replace).toHaveBeenCalledWith('/booking/bk_new');
+  });
+
+  it('blocks submission until an area is chosen, then submits with it', async () => {
+    mockUserArea = undefined;
+    (useJob as unknown as Mock).mockReturnValue({ data: JOB, isLoading: false });
+    (useProvider as unknown as Mock).mockReturnValue({ data: PROVIDER, isLoading: false });
+    const mutate = jest.fn();
+    (useCreateBooking as unknown as Mock).mockReturnValue({ mutate, isPending: false });
+
+    await render(<CreateBookingScreen />);
+    await fireEvent.changeText(screen.getByPlaceholderText('Enter full address'), '12 Main Street, Freetown');
+    await fireEvent.press(screen.getByText('Confirm Booking'));
+
+    // Area is mandatory alongside the address.
+    expect(screen.getByText('Please choose the area where the service is needed.')).toBeTruthy();
+    expect(mutate).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByText('Kissy'));
+    await fireEvent.press(screen.getByText('Confirm Booking'));
+    expect(mutate).toHaveBeenCalledWith(expect.objectContaining({ area: 'Kissy' }), expect.anything());
   });
 });

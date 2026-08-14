@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, RADIUS, SHADOWS, ROLE_ACCENT } from '@/constants/colors';
-import { formatNLe } from '@/data/mock';
+import { formatDistance, nearestAreaDistanceKm } from '@/constants/areas';
 import { useAds } from '@/hooks/ad-store';
 import { useCatalog } from '@/hooks/catalog-store';
 import { RatingStars } from '@/components/RatingStars';
@@ -42,6 +42,8 @@ export default function HomeScreen() {
   const { activeAdverts } = useAds();
   const { search } = useLocalSearchParams<{ search?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
+  // Search only runs once the customer submits the string — never per keystroke.
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const { data: myBookings = [] } = useCustomerBookings(user?.id);
   const { data: loyalty } = useLoyalty(user?.id);
   const { data: myReviews = [] } = useReviewsByCustomer(user?.id);
@@ -55,8 +57,18 @@ export default function HomeScreen() {
   useEffect(() => {
     if (typeof search === 'string' && search.trim().length > 0) {
       setSearchQuery(search);
+      setSubmittedQuery(search);
     }
   }, [search]);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSubmittedQuery('');
+  }, []);
+
+  const submitSearch = useCallback(() => {
+    setSubmittedQuery(searchQuery.trim());
+  }, [searchQuery]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -123,9 +135,11 @@ export default function HomeScreen() {
                     placeholderTextColor={COLORS.textTertiary}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    returnKeyType="search"
+                    onSubmitEditing={submitSearch}
                   />
                   {searchQuery.length > 0 && (
-                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                    <TouchableOpacity onPress={clearSearch}>
                       <Ionicons name="close-circle" size={18} color={COLORS.textTertiary} />
                     </TouchableOpacity>
                   )}
@@ -135,7 +149,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Profile hero — in view on open, minimisable */}
-          {!searchQuery && (
+          {!submittedQuery && (
             isHeroMinimised ? (
               <TouchableOpacity style={styles.heroMini} onPress={() => setIsHeroMinimised(false)} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Expand profile">
                 {user?.profilePhoto ? (
@@ -205,7 +219,7 @@ export default function HomeScreen() {
           )}
 
           {/* Activity shortcuts — all current activities live behind these */}
-          {!searchQuery && (
+          {!submittedQuery && (
             <View style={styles.shortcutRow}>
               <ShortcutTile
                 icon="briefcase"
@@ -242,13 +256,13 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* Search results — mounted on demand while the customer types */}
-          {searchQuery.length > 0 && (
-            <SearchResults query={searchQuery} onSelect={() => setSearchQuery('')} />
+          {/* Search results — mounted only after the customer submits a search */}
+          {submittedQuery.length > 0 && (
+            <SearchResults query={submittedQuery} userArea={user?.area} onSelect={clearSearch} />
           )}
 
           {/* Advert carousel */}
-          {!searchQuery && (
+          {!submittedQuery && (
             <View style={styles.advertSection}>
               <ScrollView
                 horizontal
@@ -310,7 +324,7 @@ export default function HomeScreen() {
           )}
 
           {/* Searches — discovery sections live behind buttons and mount on demand */}
-          {!searchQuery && (
+          {!submittedQuery && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Searches</Text>
               <View style={styles.searchToggleRow}>
@@ -343,7 +357,7 @@ export default function HomeScreen() {
           )}
 
           {/* Suggest a provider */}
-          {!searchQuery && (
+          {!submittedQuery && (
             <View style={styles.section}>
               <TouchableOpacity
                 style={styles.suggestCard}
@@ -503,7 +517,6 @@ function PopularServicesPanel() {
                 </View>
                 <Text style={styles.popularName} numberOfLines={2}>{job.name}</Text>
                 <Text style={styles.popularCat}>{cat?.name}</Text>
-                <Text style={styles.popularPrice}>{formatNLe(job.basePrice)}</Text>
               </TouchableOpacity>
             </Link>
           );
@@ -513,7 +526,7 @@ function PopularServicesPanel() {
   );
 }
 
-function SearchResults({ query, onSelect }: { query: string; onSelect: () => void }) {
+function SearchResults({ query, userArea, onSelect }: { query: string; userArea?: string; onSelect: () => void }) {
   const { addRecentSearch } = useCatalog();
   const { data: allJobs = [] } = useAllJobs();
   const { data: categories = [] } = useCategories();
@@ -526,6 +539,14 @@ function SearchResults({ query, onSelect }: { query: string; onSelect: () => voi
       j => j.name.toLowerCase().includes(q) || j.description.toLowerCase().includes(q)
     ).slice(0, 8);
   }, [query, allJobs]);
+
+  // Nearest traders first; distance = customer's area to the trader's nearest service area.
+  const rankedProviders = useMemo(
+    () => searchedProviders
+      .map((p) => ({ provider: p, distanceKm: nearestAreaDistanceKm(userArea, p.serviceAreas) }))
+      .sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity)),
+    [searchedProviders, userArea]
+  );
 
   const handleSelect = () => {
     addRecentSearch(query);
@@ -549,7 +570,7 @@ function SearchResults({ query, onSelect }: { query: string; onSelect: () => voi
                   </View>
                   <View style={styles.searchResultText}>
                     <Text style={styles.searchResultName}>{job.name}</Text>
-                    <Text style={styles.searchResultCat}>{cat?.name} · {formatNLe(job.basePrice)}</Text>
+                    <Text style={styles.searchResultCat}>{cat?.name}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color={COLORS.textTertiary} />
                 </TouchableOpacity>
@@ -558,10 +579,10 @@ function SearchResults({ query, onSelect }: { query: string; onSelect: () => voi
           })}
         </View>
       )}
-      {searchedProviders.length > 0 && (
+      {rankedProviders.length > 0 && (
         <View style={styles.searchResults}>
           <Text style={styles.searchResultsTitle}>Traders</Text>
-          {searchedProviders.map((p) => (
+          {rankedProviders.map(({ provider: p, distanceKm }) => (
             <Link key={p.id} href={`/provider/${p.id}`} asChild>
               <TouchableOpacity style={styles.searchResultItem} onPress={handleSelect} activeOpacity={0.7}>
                 <View style={[styles.searchResultIcon, { backgroundColor: 'rgba(34,229,255,0.12)', borderColor: 'rgba(34,229,255,0.25)' }]}>
@@ -573,6 +594,12 @@ function SearchResults({ query, onSelect }: { query: string; onSelect: () => voi
                     {p.serviceAreas.slice(0, 2).join(', ') || 'Trader'} · {p.overallRating.toFixed(1)}★
                   </Text>
                 </View>
+                {distanceKm !== null && (
+                  <View style={styles.distanceChip}>
+                    <Ionicons name="navigate" size={10} color={COLORS.accent} />
+                    <Text style={styles.distanceChipText}>{formatDistance(distanceKm)}</Text>
+                  </View>
+                )}
                 <Ionicons name="chevron-forward" size={16} color={COLORS.textTertiary} />
               </TouchableOpacity>
             </Link>
@@ -1121,11 +1148,21 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     color: COLORS.textTertiary,
   },
-  popularPrice: {
-    fontSize: 15,
+  distanceChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(0,255,163,0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,163,0.25)',
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  distanceChipText: {
+    fontSize: 10.5,
     fontWeight: '700',
     color: COLORS.accent,
-    marginTop: SPACING.xs,
   },
 
   // Suggest

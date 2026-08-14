@@ -45,6 +45,8 @@ export interface User {
   businessName?: string;
   profilePhoto?: string;
   address?: string;
+  /** Customer's home/service area (e.g. Lumley) — used to rank traders by distance. */
+  area?: string;
   approvalStatus: ApprovalStatus;
   createdAt: string;
 }
@@ -116,6 +118,8 @@ export interface Booking {
   providerPayout: number;
   scheduledDate: string;
   address: string;
+  /** Area where the service is needed — mandatory at booking time. */
+  area: string;
   notes?: string;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;

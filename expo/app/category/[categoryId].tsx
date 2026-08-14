@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, RADIUS, ROLE_ACCENT } from '@/constants/colors';
-import { formatNLe } from '@/data/mock';
 import { useCategories, useJobsByCategory, useProviders } from '@/hooks/use-data';
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
@@ -110,19 +109,12 @@ export default function CategoryDetailScreen() {
                       <Text style={styles.jobDesc} numberOfLines={2}>{job.description}</Text>
                       <View style={styles.jobMeta}>
                         <View style={styles.jobMetaItem}>
-                          <Ionicons name="time-outline" size={13} color={COLORS.textTertiary} />
-                          <Text style={styles.jobMetaText}>{job.estimatedDuration}</Text>
-                        </View>
-                        <View style={styles.jobMetaItem}>
                           <Ionicons name="people" size={13} color={COLORS.textTertiary} />
                           <Text style={styles.jobMetaText}>{jobProviders.length} providers</Text>
                         </View>
                       </View>
                     </View>
-                    <View style={styles.jobPriceWrap}>
-                      <Text style={styles.jobPrice}>{formatNLe(job.basePrice)}</Text>
-                      <Text style={styles.jobPriceLabel}>from</Text>
-                    </View>
+                    <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
                   </TouchableOpacity>
                 </Link>
               );
@@ -304,18 +296,6 @@ const styles = StyleSheet.create({
   },
   jobMetaText: {
     fontSize: 12,
-    color: COLORS.textTertiary,
-  },
-  jobPriceWrap: {
-    alignItems: 'flex-end',
-  },
-  jobPrice: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.navy,
-  },
-  jobPriceLabel: {
-    fontSize: 10,
     color: COLORS.textTertiary,
   },
   providerCard: {

@@ -41,6 +41,7 @@ type ProfileRow = {
   business_name: string | null;
   profile_photo: string | null;
   address: string | null;
+  area: string | null;
   approval_status: string | null;
   created_at: string;
 };
@@ -90,6 +91,7 @@ function toAuthUser(session: Session | null, profile: ProfileRow | null, loginMe
     businessName: profile?.business_name ?? undefined,
     profilePhoto: profile?.profile_photo ?? undefined,
     address: profile?.address ?? undefined,
+    area: profile?.area ?? undefined,
     approvalStatus: ((profile?.approval_status ?? (role === 'ADMIN' ? 'APPROVED' : 'PENDING')) as ApprovalStatus),
     createdAt: profile?.created_at ?? su.created_at ?? new Date().toISOString(),
     loginMethod,

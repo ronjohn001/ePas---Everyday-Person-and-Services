@@ -30,6 +30,7 @@ jest.mock('@/hooks/auth-store', () => ({
       role: 'CUSTOMER' as const,
       accountType: 'PRIVATE' as const,
       approvalStatus: 'APPROVED' as const,
+      area: 'Lumley',
       createdAt: '2026-01-01T00:00:00.000Z',
     },
     logout: jest.fn(),
@@ -59,9 +60,6 @@ jest.mock('@/hooks/use-data', () => ({
         description: 'Fix leaks and burst pipes',
         icon: 'water',
         color: '#4FC3F7',
-        basePrice: 250,
-        assessmentFee: 50,
-        estimatedDuration: '1-2h',
         providerIds: ['p1'],
       },
     ],
@@ -81,7 +79,7 @@ jest.mock('@/hooks/use-data', () => ({
         totalReviews: 12,
         completedJobs: 34,
         badgeLevel: 'RISING_STAR',
-        serviceAreas: ['Freetown'],
+        serviceAreas: ['Brookfields'],
         serviceCategoryIds: ['c1'],
         responseTime: '~2h',
         verified: true,
@@ -103,7 +101,7 @@ jest.mock('@/hooks/use-data', () => ({
         totalReviews: 12,
         completedJobs: 34,
         badgeLevel: 'RISING_STAR',
-        serviceAreas: ['Freetown'],
+        serviceAreas: ['Brookfields'],
         serviceCategoryIds: ['c1'],
         responseTime: '~2h',
         verified: true,
@@ -279,11 +277,16 @@ describe('Customer Home', () => {
     expect(mockPush).toHaveBeenCalledWith('/favourites');
   });
 
-  it('shows live results while typing and records the search when a result is tapped', async () => {
+  it('only searches once the string is submitted — never on each keystroke', async () => {
     await renderHome();
-    await fireEvent.changeText(screen.getByPlaceholderText('Search services or traders...'), 'plumb');
+    const input = screen.getByPlaceholderText('Search services or traders...');
+    await fireEvent.changeText(input, 'plumb');
 
-    // Discovery sections are replaced by results while typing
+    // Typing alone must not run a search: discovery sections stay put
+    expect(screen.getByText('Searches')).toBeTruthy();
+    expect(screen.queryByText('Services')).toBeNull();
+
+    await fireEvent(input, 'submitEditing');
     expect(screen.queryByText('Searches')).toBeNull();
     expect(screen.getByText('Services')).toBeTruthy();
     expect(screen.getByText('Plumbing Repair')).toBeTruthy();
@@ -294,6 +297,16 @@ describe('Customer Home', () => {
 
     // Selection clears the query and restores the discovery sections
     expect(screen.getByText('Searches')).toBeTruthy();
+  });
+
+  it("shows the trader's distance from the customer's area in search results", async () => {
+    await renderHome();
+    const input = screen.getByPlaceholderText('Search services or traders...');
+    await fireEvent.changeText(input, 'foday');
+    await fireEvent(input, 'submitEditing');
+
+    // Customer is in Lumley, trader serves Brookfields → distance chip appears
+    expect(screen.getByText(/km away|Nearby/)).toBeTruthy();
   });
 
   it('pre-fills the search bar when deep-linked with a search term', async () => {

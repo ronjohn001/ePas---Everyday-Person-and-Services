@@ -15,6 +15,7 @@ import type {
   ProviderSuggestion,
   User,
 } from '@/types';
+import { SERVICE_AREA_NAMES } from '@/constants/areas';
 
 export const CATEGORIES: ServiceCategory[] = [
   { id: 'cat1', name: 'House Care', icon: 'home', color: '#1A3C6E', description: 'Housekeeping, cleaning, repairs, trades', sortOrder: 1, serviceCount: 10 },
@@ -32,80 +33,80 @@ export const CATEGORIES: ServiceCategory[] = [
 
 export const SERVICE_JOBS: ServiceJob[] = [
   // House Care (cat1) — prov1-prov5
-  { id: 'job1', categoryId: 'cat1', name: 'Housekeeper', description: 'Regular housekeeping, cleaning and home maintenance', icon: 'home', color: '#1A3C6E', basePrice: 200, assessmentFee: 0, estimatedDuration: '2-4 hours', providerIds: ['prov1', 'prov2', 'prov3'] },
-  { id: 'job2', categoryId: 'cat1', name: 'Cleaner', description: 'Professional cleaning for homes and offices', icon: 'sparkles', color: '#1A3C6E', basePrice: 150, assessmentFee: 0, estimatedDuration: '2-3 hours', providerIds: ['prov1', 'prov4', 'prov5'] },
-  { id: 'job3', categoryId: 'cat1', name: 'Painter', description: 'Interior and exterior painting services', icon: 'brush', color: '#D35400', basePrice: 350, assessmentFee: 50, estimatedDuration: '1-2 days', providerIds: ['prov2', 'prov3'] },
-  { id: 'job4', categoryId: 'cat1', name: 'Welder', description: 'Metal welding and fabrication work', icon: 'flash', color: '#1A3C6E', basePrice: 400, assessmentFee: 50, estimatedDuration: '3-4 hours', providerIds: ['prov3', 'prov5'] },
-  { id: 'job5', categoryId: 'cat1', name: 'Locksmith', description: 'Lock installation, repair and key cutting', icon: 'key', color: '#1A3C6E', basePrice: 120, assessmentFee: 25, estimatedDuration: '1 hour', providerIds: ['prov4'] },
-  { id: 'job6', categoryId: 'cat1', name: 'Carpenter', description: 'Furniture repair, woodwork and carpentry', icon: 'hammer', color: '#D35400', basePrice: 250, assessmentFee: 0, estimatedDuration: '2-4 hours', providerIds: ['prov2', 'prov5'] },
-  { id: 'job7', categoryId: 'cat1', name: 'Roofer', description: 'Roof repair, installation and waterproofing', icon: 'home', color: '#1A3C6E', basePrice: 500, assessmentFee: 50, estimatedDuration: '1-2 days', providerIds: ['prov1', 'prov3'] },
-  { id: 'job8', categoryId: 'cat1', name: 'Gas Cooker', description: 'Gas cooker installation, repair and servicing', icon: 'flame', color: '#E67E22', basePrice: 180, assessmentFee: 25, estimatedDuration: '1-2 hours', providerIds: ['prov4', 'prov5'] },
-  { id: 'job9', categoryId: 'cat1', name: 'Masonry', description: 'Block work, plastering and masonry services', icon: 'cube', color: '#1A3C6E', basePrice: 400, assessmentFee: 50, estimatedDuration: '1-2 days', providerIds: ['prov3', 'prov4'] },
-  { id: 'job10', categoryId: 'cat1', name: 'Tiler', description: 'Floor and wall tiling installation and repair', icon: 'grid', color: '#1A3C6E', basePrice: 350, assessmentFee: 25, estimatedDuration: '4-8 hours', providerIds: ['prov1', 'prov5'] },
+  { id: 'job1', categoryId: 'cat1', name: 'Housekeeper', description: 'Regular housekeeping, cleaning and home maintenance', icon: 'home', color: '#1A3C6E', providerIds: ['prov1', 'prov2', 'prov3'] },
+  { id: 'job2', categoryId: 'cat1', name: 'Cleaner', description: 'Professional cleaning for homes and offices', icon: 'sparkles', color: '#1A3C6E', providerIds: ['prov1', 'prov4', 'prov5'] },
+  { id: 'job3', categoryId: 'cat1', name: 'Painter', description: 'Interior and exterior painting services', icon: 'brush', color: '#D35400', providerIds: ['prov2', 'prov3'] },
+  { id: 'job4', categoryId: 'cat1', name: 'Welder', description: 'Metal welding and fabrication work', icon: 'flash', color: '#1A3C6E', providerIds: ['prov3', 'prov5'] },
+  { id: 'job5', categoryId: 'cat1', name: 'Locksmith', description: 'Lock installation, repair and key cutting', icon: 'key', color: '#1A3C6E', providerIds: ['prov4'] },
+  { id: 'job6', categoryId: 'cat1', name: 'Carpenter', description: 'Furniture repair, woodwork and carpentry', icon: 'hammer', color: '#D35400', providerIds: ['prov2', 'prov5'] },
+  { id: 'job7', categoryId: 'cat1', name: 'Roofer', description: 'Roof repair, installation and waterproofing', icon: 'home', color: '#1A3C6E', providerIds: ['prov1', 'prov3'] },
+  { id: 'job8', categoryId: 'cat1', name: 'Gas Cooker', description: 'Gas cooker installation, repair and servicing', icon: 'flame', color: '#E67E22', providerIds: ['prov4', 'prov5'] },
+  { id: 'job9', categoryId: 'cat1', name: 'Masonry', description: 'Block work, plastering and masonry services', icon: 'cube', color: '#1A3C6E', providerIds: ['prov3', 'prov4'] },
+  { id: 'job10', categoryId: 'cat1', name: 'Tiler', description: 'Floor and wall tiling installation and repair', icon: 'grid', color: '#1A3C6E', providerIds: ['prov1', 'prov5'] },
 
   // Labour (cat2) — prov6-prov8
-  { id: 'job11', categoryId: 'cat2', name: 'Labourer', description: 'General labour for construction and site work', icon: 'construct', color: '#E67E22', basePrice: 150, assessmentFee: 0, estimatedDuration: 'Full day', providerIds: ['prov6', 'prov7', 'prov8'] },
-  { id: 'job12', categoryId: 'cat2', name: 'Cleaner', description: 'Post-construction and site cleaning', icon: 'sparkles', color: '#E67E22', basePrice: 120, assessmentFee: 0, estimatedDuration: '3-4 hours', providerIds: ['prov6', 'prov8'] },
-  { id: 'job13', categoryId: 'cat2', name: 'Painter', description: 'Building and construction painting', icon: 'brush', color: '#D35400', basePrice: 300, assessmentFee: 25, estimatedDuration: '1-2 days', providerIds: ['prov7', 'prov8'] },
-  { id: 'job14', categoryId: 'cat2', name: 'Welder', description: 'Structural welding and metal fabrication', icon: 'flash', color: '#E67E22', basePrice: 450, assessmentFee: 50, estimatedDuration: '4-6 hours', providerIds: ['prov6', 'prov7'] },
-  { id: 'job15', categoryId: 'cat2', name: 'Carpenter', description: 'Construction carpentry and formwork', icon: 'hammer', color: '#D35400', basePrice: 280, assessmentFee: 0, estimatedDuration: 'Full day', providerIds: ['prov7'] },
-  { id: 'job16', categoryId: 'cat2', name: 'Roofer', description: 'Roofing installation and repair for buildings', icon: 'home', color: '#E67E22', basePrice: 550, assessmentFee: 50, estimatedDuration: '1-3 days', providerIds: ['prov6', 'prov8'] },
+  { id: 'job11', categoryId: 'cat2', name: 'Labourer', description: 'General labour for construction and site work', icon: 'construct', color: '#E67E22', providerIds: ['prov6', 'prov7', 'prov8'] },
+  { id: 'job12', categoryId: 'cat2', name: 'Cleaner', description: 'Post-construction and site cleaning', icon: 'sparkles', color: '#E67E22', providerIds: ['prov6', 'prov8'] },
+  { id: 'job13', categoryId: 'cat2', name: 'Painter', description: 'Building and construction painting', icon: 'brush', color: '#D35400', providerIds: ['prov7', 'prov8'] },
+  { id: 'job14', categoryId: 'cat2', name: 'Welder', description: 'Structural welding and metal fabrication', icon: 'flash', color: '#E67E22', providerIds: ['prov6', 'prov7'] },
+  { id: 'job15', categoryId: 'cat2', name: 'Carpenter', description: 'Construction carpentry and formwork', icon: 'hammer', color: '#D35400', providerIds: ['prov7'] },
+  { id: 'job16', categoryId: 'cat2', name: 'Roofer', description: 'Roofing installation and repair for buildings', icon: 'home', color: '#E67E22', providerIds: ['prov6', 'prov8'] },
 
   // Vehicle (cat3) — prov9-prov11
-  { id: 'job17', categoryId: 'cat3', name: 'Biker', description: 'Motorbike transport and delivery services', icon: 'bicycle', color: '#E74C3C', basePrice: 50, assessmentFee: 0, estimatedDuration: '30-60 mins', providerIds: ['prov9', 'prov11'] },
-  { id: 'job18', categoryId: 'cat3', name: 'Car Driver', description: 'Private car driver for hire and trips', icon: 'car', color: '#E74C3C', basePrice: 120, assessmentFee: 0, estimatedDuration: 'As needed', providerIds: ['prov10', 'prov11'] },
-  { id: 'job19', categoryId: 'cat3', name: 'Mechanic', description: 'Vehicle repair, servicing and diagnostics', icon: 'settings', color: '#E74C3C', basePrice: 350, assessmentFee: 25, estimatedDuration: '2-4 hours', providerIds: ['prov9', 'prov10'] },
-  { id: 'job20', categoryId: 'cat3', name: 'Electrical', description: 'Auto electrical repairs and wiring', icon: 'flash', color: '#F39C12', basePrice: 300, assessmentFee: 25, estimatedDuration: '2-3 hours', providerIds: ['prov10'] },
-  { id: 'job21', categoryId: 'cat3', name: 'Locks', description: 'Vehicle lock repair and key replacement', icon: 'key', color: '#E74C3C', basePrice: 150, assessmentFee: 25, estimatedDuration: '1 hour', providerIds: ['prov11'] },
-  { id: 'job22', categoryId: 'cat3', name: 'Alarms', description: 'Car alarm installation and repair', icon: 'notifications', color: '#E74C3C', basePrice: 200, assessmentFee: 25, estimatedDuration: '1-2 hours', providerIds: ['prov9'] },
+  { id: 'job17', categoryId: 'cat3', name: 'Biker', description: 'Motorbike transport and delivery services', icon: 'bicycle', color: '#E74C3C', providerIds: ['prov9', 'prov11'] },
+  { id: 'job18', categoryId: 'cat3', name: 'Car Driver', description: 'Private car driver for hire and trips', icon: 'car', color: '#E74C3C', providerIds: ['prov10', 'prov11'] },
+  { id: 'job19', categoryId: 'cat3', name: 'Mechanic', description: 'Vehicle repair, servicing and diagnostics', icon: 'settings', color: '#E74C3C', providerIds: ['prov9', 'prov10'] },
+  { id: 'job20', categoryId: 'cat3', name: 'Electrical', description: 'Auto electrical repairs and wiring', icon: 'flash', color: '#F39C12', providerIds: ['prov10'] },
+  { id: 'job21', categoryId: 'cat3', name: 'Locks', description: 'Vehicle lock repair and key replacement', icon: 'key', color: '#E74C3C', providerIds: ['prov11'] },
+  { id: 'job22', categoryId: 'cat3', name: 'Alarms', description: 'Car alarm installation and repair', icon: 'notifications', color: '#E74C3C', providerIds: ['prov9'] },
 
   // Electrical (cat4) — prov12-prov14
-  { id: 'job23', categoryId: 'cat4', name: 'Electrician', description: 'Wiring, installation and electrical repair', icon: 'flash', color: '#F39C12', basePrice: 400, assessmentFee: 50, estimatedDuration: '3-4 hours', providerIds: ['prov12', 'prov13', 'prov14'] },
-  { id: 'job24', categoryId: 'cat4', name: 'Solar Installer', description: 'Solar panel system design and installation', icon: 'sunny', color: '#F1C40F', basePrice: 2500, assessmentFee: 100, estimatedDuration: '1-2 days', providerIds: ['prov13', 'prov14'] },
-  { id: 'job25', categoryId: 'cat4', name: 'Fridge', description: 'Refrigerator repair and servicing', icon: 'snow', color: '#3498DB', basePrice: 250, assessmentFee: 25, estimatedDuration: '2-3 hours', providerIds: ['prov12'] },
-  { id: 'job26', categoryId: 'cat4', name: 'Fans', description: 'Ceiling and standing fan repair', icon: 'refresh', color: '#F39C12', basePrice: 100, assessmentFee: 0, estimatedDuration: '1 hour', providerIds: ['prov12', 'prov14'] },
-  { id: 'job27', categoryId: 'cat4', name: 'AirCon', description: 'Air conditioning installation and repair', icon: 'snow', color: '#3498DB', basePrice: 500, assessmentFee: 50, estimatedDuration: '3-4 hours', providerIds: ['prov13'] },
-  { id: 'job28', categoryId: 'cat4', name: 'Car', description: 'Auto electrical systems and battery service', icon: 'car', color: '#E74C3C', basePrice: 300, assessmentFee: 25, estimatedDuration: '2-3 hours', providerIds: ['prov14'] },
+  { id: 'job23', categoryId: 'cat4', name: 'Electrician', description: 'Wiring, installation and electrical repair', icon: 'flash', color: '#F39C12', providerIds: ['prov12', 'prov13', 'prov14'] },
+  { id: 'job24', categoryId: 'cat4', name: 'Solar Installer', description: 'Solar panel system design and installation', icon: 'sunny', color: '#F1C40F', providerIds: ['prov13', 'prov14'] },
+  { id: 'job25', categoryId: 'cat4', name: 'Fridge', description: 'Refrigerator repair and servicing', icon: 'snow', color: '#3498DB', providerIds: ['prov12'] },
+  { id: 'job26', categoryId: 'cat4', name: 'Fans', description: 'Ceiling and standing fan repair', icon: 'refresh', color: '#F39C12', providerIds: ['prov12', 'prov14'] },
+  { id: 'job27', categoryId: 'cat4', name: 'AirCon', description: 'Air conditioning installation and repair', icon: 'snow', color: '#3498DB', providerIds: ['prov13'] },
+  { id: 'job28', categoryId: 'cat4', name: 'Car', description: 'Auto electrical systems and battery service', icon: 'car', color: '#E74C3C', providerIds: ['prov14'] },
 
   // Plumbing (cat5) — prov15-prov16
-  { id: 'job29', categoryId: 'cat5', name: 'Plumber', description: 'Pipe repair, installation and fitting', icon: 'water', color: '#3498DB', basePrice: 200, assessmentFee: 25, estimatedDuration: '2-3 hours', providerIds: ['prov15', 'prov16'] },
-  { id: 'job30', categoryId: 'cat5', name: 'Wells', description: 'Well digging and water well maintenance', icon: 'water', color: '#3498DB', basePrice: 800, assessmentFee: 100, estimatedDuration: '2-5 days', providerIds: ['prov15'] },
-  { id: 'job31', categoryId: 'cat5', name: 'Pumps', description: 'Water pump installation and repair', icon: 'water', color: '#3498DB', basePrice: 350, assessmentFee: 50, estimatedDuration: '2-4 hours', providerIds: ['prov16'] },
-  { id: 'job32', categoryId: 'cat5', name: 'Bowser', description: 'Water bowser supply and delivery', icon: 'water', color: '#3498DB', basePrice: 400, assessmentFee: 0, estimatedDuration: '1-2 hours', providerIds: ['prov15', 'prov16'] },
+  { id: 'job29', categoryId: 'cat5', name: 'Plumber', description: 'Pipe repair, installation and fitting', icon: 'water', color: '#3498DB', providerIds: ['prov15', 'prov16'] },
+  { id: 'job30', categoryId: 'cat5', name: 'Wells', description: 'Well digging and water well maintenance', icon: 'water', color: '#3498DB', providerIds: ['prov15'] },
+  { id: 'job31', categoryId: 'cat5', name: 'Pumps', description: 'Water pump installation and repair', icon: 'water', color: '#3498DB', providerIds: ['prov16'] },
+  { id: 'job32', categoryId: 'cat5', name: 'Bowser', description: 'Water bowser supply and delivery', icon: 'water', color: '#3498DB', providerIds: ['prov15', 'prov16'] },
 
   // Travel (cat6) — prov17-prov18
-  { id: 'job33', categoryId: 'cat6', name: 'Biker', description: 'Motorbike taxi and quick delivery', icon: 'bicycle', color: '#2ECC71', basePrice: 40, assessmentFee: 0, estimatedDuration: '30-60 mins', providerIds: ['prov17', 'prov18'] },
-  { id: 'job34', categoryId: 'cat6', name: 'Car Driver', description: 'Hire a car with driver for trips', icon: 'car', color: '#2ECC71', basePrice: 150, assessmentFee: 0, estimatedDuration: 'As needed', providerIds: ['prov18'] },
-  { id: 'job35', categoryId: 'cat6', name: 'Mechanic', description: 'On-the-road vehicle repair assistance', icon: 'settings', color: '#2ECC71', basePrice: 300, assessmentFee: 25, estimatedDuration: '1-3 hours', providerIds: ['prov17'] },
-  { id: 'job36', categoryId: 'cat6', name: 'Vans', description: 'Van hire for goods transport and moving', icon: 'car', color: '#2ECC71', basePrice: 500, assessmentFee: 0, estimatedDuration: 'As needed', providerIds: ['prov17', 'prov18'] },
+  { id: 'job33', categoryId: 'cat6', name: 'Biker', description: 'Motorbike taxi and quick delivery', icon: 'bicycle', color: '#2ECC71', providerIds: ['prov17', 'prov18'] },
+  { id: 'job34', categoryId: 'cat6', name: 'Car Driver', description: 'Hire a car with driver for trips', icon: 'car', color: '#2ECC71', providerIds: ['prov18'] },
+  { id: 'job35', categoryId: 'cat6', name: 'Mechanic', description: 'On-the-road vehicle repair assistance', icon: 'settings', color: '#2ECC71', providerIds: ['prov17'] },
+  { id: 'job36', categoryId: 'cat6', name: 'Vans', description: 'Van hire for goods transport and moving', icon: 'car', color: '#2ECC71', providerIds: ['prov17', 'prov18'] },
 
   // Personal Care (cat7) — prov19
-  { id: 'job37', categoryId: 'cat7', name: 'Dentist', description: 'Dental consultation and treatment', icon: 'medkit', color: '#E91E8C', basePrice: 300, assessmentFee: 0, estimatedDuration: '1 hour', providerIds: ['prov19'] },
-  { id: 'job38', categoryId: 'cat7', name: 'Doctor', description: 'General medical consultation at home', icon: 'medkit', color: '#E91E8C', basePrice: 400, assessmentFee: 0, estimatedDuration: '1 hour', providerIds: ['prov19'] },
+  { id: 'job37', categoryId: 'cat7', name: 'Dentist', description: 'Dental consultation and treatment', icon: 'medkit', color: '#E91E8C', providerIds: ['prov19'] },
+  { id: 'job38', categoryId: 'cat7', name: 'Doctor', description: 'General medical consultation at home', icon: 'medkit', color: '#E91E8C', providerIds: ['prov19'] },
 
   // Hair Dresser (cat8) — prov20-prov21
-  { id: 'job39', categoryId: 'cat8', name: 'Braider', description: 'Professional hair braiding services', icon: 'cut', color: '#9B59B6', basePrice: 200, assessmentFee: 0, estimatedDuration: '2-4 hours', providerIds: ['prov20', 'prov21'] },
-  { id: 'job40', categoryId: 'cat8', name: 'Wig Maintenance', description: 'Wig washing, styling and upkeep', icon: 'cut', color: '#9B59B6', basePrice: 120, assessmentFee: 0, estimatedDuration: '1-2 hours', providerIds: ['prov20'] },
-  { id: 'job41', categoryId: 'cat8', name: 'Wigs', description: 'Wig selection, fitting and styling', icon: 'cut', color: '#9B59B6', basePrice: 300, assessmentFee: 0, estimatedDuration: '1-2 hours', providerIds: ['prov21'] },
-  { id: 'job42', categoryId: 'cat8', name: 'Installation', description: 'Wig installation and securing service', icon: 'build', color: '#9B59B6', basePrice: 180, assessmentFee: 0, estimatedDuration: '1-2 hours', providerIds: ['prov20', 'prov21'] },
-  { id: 'job43', categoryId: 'cat8', name: 'Nails Acrylic', description: 'Acrylic nail application and design', icon: 'hand-right', color: '#9B59B6', basePrice: 150, assessmentFee: 0, estimatedDuration: '1-2 hours', providerIds: ['prov21'] },
-  { id: 'job44', categoryId: 'cat8', name: 'Wash', description: 'Professional hair wash and treatment', icon: 'water', color: '#9B59B6', basePrice: 80, assessmentFee: 0, estimatedDuration: '45 mins', providerIds: ['prov20'] },
-  { id: 'job45', categoryId: 'cat8', name: 'Blow Dry', description: 'Hair blow drying and styling', icon: 'refresh', color: '#9B59B6', basePrice: 100, assessmentFee: 0, estimatedDuration: '1 hour', providerIds: ['prov20', 'prov21'] },
+  { id: 'job39', categoryId: 'cat8', name: 'Braider', description: 'Professional hair braiding services', icon: 'cut', color: '#9B59B6', providerIds: ['prov20', 'prov21'] },
+  { id: 'job40', categoryId: 'cat8', name: 'Wig Maintenance', description: 'Wig washing, styling and upkeep', icon: 'cut', color: '#9B59B6', providerIds: ['prov20'] },
+  { id: 'job41', categoryId: 'cat8', name: 'Wigs', description: 'Wig selection, fitting and styling', icon: 'cut', color: '#9B59B6', providerIds: ['prov21'] },
+  { id: 'job42', categoryId: 'cat8', name: 'Installation', description: 'Wig installation and securing service', icon: 'build', color: '#9B59B6', providerIds: ['prov20', 'prov21'] },
+  { id: 'job43', categoryId: 'cat8', name: 'Nails Acrylic', description: 'Acrylic nail application and design', icon: 'hand-right', color: '#9B59B6', providerIds: ['prov21'] },
+  { id: 'job44', categoryId: 'cat8', name: 'Wash', description: 'Professional hair wash and treatment', icon: 'water', color: '#9B59B6', providerIds: ['prov20'] },
+  { id: 'job45', categoryId: 'cat8', name: 'Blow Dry', description: 'Hair blow drying and styling', icon: 'refresh', color: '#9B59B6', providerIds: ['prov20', 'prov21'] },
 
   // Health (cat9) — prov22-prov24
-  { id: 'job46', categoryId: 'cat9', name: 'Dentist', description: 'Dental care, check-up and treatment', icon: 'medkit', color: '#16A085', basePrice: 350, assessmentFee: 0, estimatedDuration: '1 hour', providerIds: ['prov22', 'prov23'] },
-  { id: 'job47', categoryId: 'cat9', name: 'Doctor', description: 'Home visit doctor consultation', icon: 'medkit', color: '#16A085', basePrice: 500, assessmentFee: 0, estimatedDuration: '1-2 hours', providerIds: ['prov23', 'prov24'] },
-  { id: 'job48', categoryId: 'cat9', name: 'Pharmacy', description: 'Prescription delivery and medication supply', icon: 'medkit', color: '#16A085', basePrice: 100, assessmentFee: 0, estimatedDuration: '30 mins', providerIds: ['prov22'] },
-  { id: 'job49', categoryId: 'cat9', name: 'Hospital', description: 'Hospital referral and care coordination', icon: 'medkit', color: '#16A085', basePrice: 600, assessmentFee: 0, estimatedDuration: '2-4 hours', providerIds: ['prov24'] },
+  { id: 'job46', categoryId: 'cat9', name: 'Dentist', description: 'Dental care, check-up and treatment', icon: 'medkit', color: '#16A085', providerIds: ['prov22', 'prov23'] },
+  { id: 'job47', categoryId: 'cat9', name: 'Doctor', description: 'Home visit doctor consultation', icon: 'medkit', color: '#16A085', providerIds: ['prov23', 'prov24'] },
+  { id: 'job48', categoryId: 'cat9', name: 'Pharmacy', description: 'Prescription delivery and medication supply', icon: 'medkit', color: '#16A085', providerIds: ['prov22'] },
+  { id: 'job49', categoryId: 'cat9', name: 'Hospital', description: 'Hospital referral and care coordination', icon: 'medkit', color: '#16A085', providerIds: ['prov24'] },
 
   // Decorator (cat10) — prov25
-  { id: 'job50', categoryId: 'cat10', name: 'Painter', description: 'Professional painting and decoration services', icon: 'brush', color: '#D35400', basePrice: 350, assessmentFee: 50, estimatedDuration: '1-2 days', providerIds: ['prov25'] },
+  { id: 'job50', categoryId: 'cat10', name: 'Painter', description: 'Professional painting and decoration services', icon: 'brush', color: '#D35400', providerIds: ['prov25'] },
 
   // Solar/Renewables (cat11) — prov26-prov27
-  { id: 'job51', categoryId: 'cat11', name: 'Installer', description: 'Solar and renewable energy system installation', icon: 'sunny', color: '#F1C40F', basePrice: 2500, assessmentFee: 100, estimatedDuration: '1-2 days', providerIds: ['prov26', 'prov27'] },
-  { id: 'job52', categoryId: 'cat11', name: 'Maintenance', description: 'Solar system maintenance and panel cleaning', icon: 'build', color: '#F1C40F', basePrice: 200, assessmentFee: 25, estimatedDuration: '2-3 hours', providerIds: ['prov26'] },
-  { id: 'job53', categoryId: 'cat11', name: 'Wind', description: 'Wind turbine installation and repair', icon: 'refresh', color: '#F1C40F', basePrice: 3000, assessmentFee: 150, estimatedDuration: '2-3 days', providerIds: ['prov27'] },
-  { id: 'job54', categoryId: 'cat11', name: 'Hydro/Water', description: 'Micro-hydro power system installation', icon: 'water', color: '#F1C40F', basePrice: 3500, assessmentFee: 200, estimatedDuration: '3-5 days', providerIds: ['prov26', 'prov27'] },
+  { id: 'job51', categoryId: 'cat11', name: 'Installer', description: 'Solar and renewable energy system installation', icon: 'sunny', color: '#F1C40F', providerIds: ['prov26', 'prov27'] },
+  { id: 'job52', categoryId: 'cat11', name: 'Maintenance', description: 'Solar system maintenance and panel cleaning', icon: 'build', color: '#F1C40F', providerIds: ['prov26'] },
+  { id: 'job53', categoryId: 'cat11', name: 'Wind', description: 'Wind turbine installation and repair', icon: 'refresh', color: '#F1C40F', providerIds: ['prov27'] },
+  { id: 'job54', categoryId: 'cat11', name: 'Hydro/Water', description: 'Micro-hydro power system installation', icon: 'water', color: '#F1C40F', providerIds: ['prov26', 'prov27'] },
 ];
 
 const PROVIDER_NAMES = [
@@ -137,7 +138,8 @@ const BIOS = [
   'Skilled tradesperson with a passion for quality. Satisfaction guaranteed on every job.',
 ];
 
-const AREAS = ['Freetown', 'Bo', 'Kenema', 'Makeni', 'Koidu', 'Lunsar'];
+// Traders operate in the known Freetown service areas (see constants/areas.ts).
+const AREAS = SERVICE_AREA_NAMES;
 
 const BADGES: Array<'NEW' | 'RISING_STAR' | 'VERIFIED_PRO' | 'MASTER'> = ['NEW', 'RISING_STAR', 'VERIFIED_PRO', 'MASTER'];
 
@@ -185,7 +187,8 @@ export const BOOKINGS: Booking[] = Array.from({ length: 12 }, (_, i) => {
   const job = SERVICE_JOBS[i % SERVICE_JOBS.length];
   const provider = PROVIDERS[i % PROVIDERS.length];
   const status = BOOKING_STATUSES[i % BOOKING_STATUSES.length];
-  const finalPrice = job.basePrice + (i % 3) * 50;
+  // Flat demo price — service jobs no longer carry a base price.
+  const finalPrice = 250 + (i % 3) * 50;
   const platformCommission = Math.round(finalPrice * 0.15);
   const serviceFee = 25;
   const providerPayout = finalPrice - platformCommission - serviceFee;
@@ -213,6 +216,7 @@ export const BOOKINGS: Booking[] = Array.from({ length: 12 }, (_, i) => {
     providerPayout,
     scheduledDate,
     address: `${i + 5} Wilkinson Road, Freetown`,
+    area: AREAS[(i + 1) % AREAS.length],
     notes: i % 3 === 1 ? BOOKING_NOTES[i % BOOKING_NOTES.length] : undefined,
     paymentMethod: i % 2 === 0 ? 'ORANGE_MONEY' : 'AFRICELL_MONEY',
     paymentStatus: isCompleted ? 'RELEASED' : status === 'REQUESTED' || status === 'DECLINED' || status === 'CANCELLED' ? 'PENDING' : 'HELD_IN_ESCROW',
@@ -488,6 +492,7 @@ export const DEMO_USER: User = {
   accountType: 'PRIVATE',
   approvalStatus: 'APPROVED',
   profilePhoto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face',
+  area: 'Lumley',
   createdAt: new Date(Date.now() - 86400000 * 90).toISOString(),
 };
 

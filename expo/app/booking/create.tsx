@@ -1,5 +1,5 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
+import { SERVICE_AREA_NAMES } from '@/constants/areas';
 import { formatNLe } from '@/data/mock';
 import { useAuth } from '@/hooks/auth-store';
 import { useJob, useProvider, useCreateBooking } from '@/hooks/use-data';
@@ -28,17 +29,21 @@ export default function CreateBookingScreen() {
 
   const [bookingType, setBookingType] = useState<BookingType>('INSTANT');
   const [address, setAddress] = useState('');
+  const [area, setArea] = useState(user?.area ?? '');
   const [scheduledDate, setScheduledDate] = useState('');
   const [notes, setNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('ORANGE_MONEY');
-  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const basePrice = job?.basePrice ?? 0;
-  const assessmentFee = job?.assessmentFee ?? 0;
-  const loyaltyDiscount = useLoyaltyPoints ? Math.min(100, basePrice * 0.1) : 0;
+  // Prefill the area from the customer's profile once it loads.
+  useEffect(() => {
+    if (!area && user?.area) setArea(user.area);
+  }, [area, user?.area]);
+
+  // Service jobs no longer carry prices — only the flat platform fee is due
+  // up front; the trader confirms the job price after assessing the work.
   const serviceFee = 25;
-  const total = basePrice + assessmentFee + serviceFee - loyaltyDiscount;
+  const total = serviceFee;
 
   if (!job || !provider) {
     return (
@@ -64,6 +69,10 @@ export default function CreateBookingScreen() {
       setSubmitError('Please enter the service address.');
       return;
     }
+    if (!area) {
+      setSubmitError('Please choose the area where the service is needed.');
+      return;
+    }
     setSubmitError(null);
     createBooking.mutate(
       {
@@ -79,6 +88,7 @@ export default function CreateBookingScreen() {
         serviceJobColor: job.color,
         bookingType,
         address: address.trim(),
+        area,
         scheduledDate: scheduledDate.trim() || new Date().toISOString(),
         notes: notes.trim() || undefined,
         finalPrice: Math.round(total),
@@ -115,7 +125,6 @@ export default function CreateBookingScreen() {
             <Text style={styles.summaryJob}>{job.name}</Text>
             <Text style={styles.summaryProvider}>{provider.name}</Text>
           </View>
-          <Text style={styles.summaryPrice}>{formatNLe(basePrice)}</Text>
         </View>
 
         {/* Booking type */}
@@ -153,6 +162,26 @@ export default function CreateBookingScreen() {
               value={address}
               onChangeText={setAddress}
             />
+          </View>
+        </View>
+
+        {/* Area — mandatory; used to rank traders by distance */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Area</Text>
+          <View style={styles.areaChips}>
+            {SERVICE_AREA_NAMES.map((name) => {
+              const active = area === name;
+              return (
+                <TouchableOpacity
+                  key={name}
+                  style={[styles.areaChip, active && styles.areaChipActive]}
+                  onPress={() => setArea(name)}
+                >
+                  <Ionicons name="location" size={12} color={active ? COLORS.white : COLORS.textSecondary} />
+                  <Text style={[styles.areaChipText, active && styles.areaChipTextActive]}>{name}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
@@ -223,56 +252,20 @@ export default function CreateBookingScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Loyalty discount */}
-        <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.loyaltyRow}
-            onPress={() => setUseLoyaltyPoints(!useLoyaltyPoints)}
-          >
-            <View style={styles.loyaltyLeft}>
-              <View style={styles.loyaltyIcon}>
-                <Ionicons name="gift-outline" size={18} color={COLORS.green} />
-              </View>
-              <View>
-                <Text style={styles.loyaltyTitle}>Use loyalty points</Text>
-                <Text style={styles.loyaltyDesc}>Save {formatNLe(loyaltyDiscount)} with 100 points</Text>
-              </View>
-            </View>
-            <View style={[styles.toggle, useLoyaltyPoints && styles.toggleActive]}>
-              <View style={[styles.toggleDot, useLoyaltyPoints && styles.toggleDotActive]} />
-            </View>
-          </TouchableOpacity>
-        </View>
-
         {/* Price breakdown */}
         <View style={styles.priceSection}>
           <Text style={styles.sectionTitle}>Price Breakdown</Text>
           <View style={styles.priceCard}>
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Service fee</Text>
-              <Text style={styles.priceValue}>{formatNLe(basePrice)}</Text>
-            </View>
-            {assessmentFee > 0 && (
-              <View style={styles.priceRow}>
-                <Text style={styles.priceLabel}>Assessment fee</Text>
-                <Text style={styles.priceValue}>{formatNLe(assessmentFee)}</Text>
-              </View>
-            )}
-            <View style={styles.priceRow}>
               <Text style={styles.priceLabel}>Platform fee</Text>
               <Text style={styles.priceValue}>{formatNLe(serviceFee)}</Text>
             </View>
-            {loyaltyDiscount > 0 && (
-              <View style={styles.priceRow}>
-                <Text style={[styles.priceLabel, { color: COLORS.green }]}>Loyalty discount</Text>
-                <Text style={[styles.priceValue, { color: COLORS.green }]}>-{formatNLe(loyaltyDiscount)}</Text>
-              </View>
-            )}
             <View style={styles.priceDivider} />
             <View style={styles.priceRow}>
-              <Text style={styles.priceTotalLabel}>Total</Text>
+              <Text style={styles.priceTotalLabel}>Total due now</Text>
               <Text style={styles.priceTotalValue}>{formatNLe(total)}</Text>
             </View>
+            <Text style={styles.priceNote}>The trader confirms the job price after assessing the work.</Text>
           </View>
         </View>
 
@@ -288,10 +281,6 @@ export default function CreateBookingScreen() {
           </View>
         ) : null}
         <View style={styles.bottomRow}>
-          <View style={styles.bottomPrice}>
-            <Text style={styles.bottomPriceLabel}>Total</Text>
-            <Text style={styles.bottomPriceValue}>{formatNLe(total)}</Text>
-          </View>
           <TouchableOpacity
             style={[styles.confirmBtn, createBooking.isPending && { opacity: 0.7 }]}
             onPress={handleConfirm}
@@ -372,11 +361,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textTertiary,
     marginTop: 2,
-  },
-  summaryPrice: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.navy,
   },
   section: {
     paddingHorizontal: SPACING.lg,
@@ -494,56 +478,33 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: COLORS.navy,
   },
-  loyaltyRow: {
+  areaChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+  },
+  areaChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
     backgroundColor: COLORS.cardBg,
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
   },
-  loyaltyLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
+  areaChipActive: {
+    backgroundColor: COLORS.navy,
+    borderColor: COLORS.navy,
   },
-  loyaltyIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: `${COLORS.green}15`,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loyaltyTitle: {
-    fontSize: 14,
+  areaChipText: {
+    fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: COLORS.textSecondary,
   },
-  loyaltyDesc: {
-    fontSize: 12,
-    color: COLORS.green,
-    marginTop: 2,
-  },
-  toggle: {
-    width: 44,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: COLORS.border,
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  toggleActive: {
-    backgroundColor: COLORS.green,
-  },
-  toggleDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: COLORS.white,
-  },
-  toggleDotActive: {
-    alignSelf: 'flex-end',
+  areaChipTextActive: {
+    color: COLORS.white,
   },
   priceSection: {
     paddingHorizontal: SPACING.lg,
@@ -607,15 +568,10 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   submitErrorText: { fontSize: 13, color: COLORS.error, flex: 1 },
-  bottomPrice: {},
-  bottomPriceLabel: {
+  priceNote: {
     fontSize: 12,
     color: COLORS.textTertiary,
-  },
-  bottomPriceValue: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: COLORS.navy,
+    marginTop: SPACING.xs,
   },
   confirmBtn: {
     flex: 1,

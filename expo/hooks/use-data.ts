@@ -1093,6 +1093,8 @@ export interface CreateBookingInput {
   serviceJobColor?: string;
   bookingType: BookingType;
   address: string;
+  /** Area where the service is needed — mandatory at booking time. */
+  area: string;
   scheduledDate: string;
   notes?: string;
   finalPrice: number;
@@ -1128,6 +1130,7 @@ export function useCreateBooking() {
         provider_payout: providerPayout,
         scheduled_date: input.scheduledDate || null,
         address: input.address,
+        area: input.area,
         notes: input.notes ?? null,
         payment_method: input.paymentMethod,
         payment_status: 'HELD_IN_ESCROW',
@@ -1237,6 +1240,7 @@ function mapBooking(r: Row): Booking {
     providerPayout: Number(r.provider_payout ?? 0),
     scheduledDate: (r.scheduled_date as string) ?? r.created_at as string,
     address: (r.address as string) ?? '',
+    area: (r.area as string) ?? '',
     notes: (r.notes as string) ?? undefined,
     paymentMethod: r.payment_method as Booking['paymentMethod'],
     paymentStatus: r.payment_status as Booking['paymentStatus'],

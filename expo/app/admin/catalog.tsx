@@ -17,7 +17,6 @@ import { ScreenBackground } from '@/components/ScreenBackground';
 import { GlassCard } from '@/components/GlassCard';
 import { TextField, NumberField, ColorPicker, IconPicker } from '@/components/AdminFormFields';
 import { useCatalog } from '@/hooks/catalog-store';
-import { formatNLe } from '@/data/mock';
 import type { ServiceCategory, ServiceJob } from '@/types';
 import { LogoutButton } from '@/components/LogoutButton';
 import { BackButton } from '@/components/BackButton';
@@ -55,9 +54,6 @@ export default function AdminCatalogScreen() {
   const [jobDescription, setJobDescription] = useState('');
   const [jobIcon, setJobIcon] = useState('build');
   const [jobColor, setJobColor] = useState('#00D9A3');
-  const [jobBasePrice, setJobBasePrice] = useState(100);
-  const [jobAssessmentFee, setJobAssessmentFee] = useState(0);
-  const [jobDuration, setJobDuration] = useState('1-2 hours');
   const [jobCategoryId, setJobCategoryId] = useState('');
 
   // ─── Open modals ─────────────────────────────────────────────
@@ -88,9 +84,6 @@ export default function AdminCatalogScreen() {
     setJobDescription(job.description);
     setJobIcon(job.icon);
     setJobColor(job.color);
-    setJobBasePrice(job.basePrice);
-    setJobAssessmentFee(job.assessmentFee);
-    setJobDuration(job.estimatedDuration);
     setJobCategoryId(job.categoryId);
     setModalMode('job-edit');
   };
@@ -101,9 +94,6 @@ export default function AdminCatalogScreen() {
     setJobDescription('');
     setJobIcon('build');
     setJobColor(categories.find((c) => c.id === categoryId)?.color ?? '#00D9A3');
-    setJobBasePrice(100);
-    setJobAssessmentFee(0);
-    setJobDuration('1-2 hours');
     setJobCategoryId(categoryId);
     setJobParentCategoryId(categoryId);
     setModalMode('job-add');
@@ -153,9 +143,6 @@ export default function AdminCatalogScreen() {
         description: jobDescription.trim(),
         icon: jobIcon,
         color: jobColor,
-        basePrice: jobBasePrice,
-        assessmentFee: jobAssessmentFee,
-        estimatedDuration: jobDuration.trim(),
         categoryId: jobCategoryId,
       });
     } else if (modalMode === 'job-add') {
@@ -167,9 +154,6 @@ export default function AdminCatalogScreen() {
         description: jobDescription.trim(),
         icon: jobIcon,
         color: jobColor,
-        basePrice: jobBasePrice,
-        assessmentFee: jobAssessmentFee,
-        estimatedDuration: jobDuration.trim(),
         providerIds: [],
       });
     }
@@ -308,11 +292,10 @@ export default function AdminCatalogScreen() {
                             </View>
                             <View style={styles.jobInfo}>
                               <Text style={styles.jobName}>{job.name}</Text>
-                              <Text style={styles.jobMeta}>
-                                {job.estimatedDuration} · Fee: {formatNLe(job.assessmentFee)}
+                              <Text style={styles.jobMeta} numberOfLines={1}>
+                                {job.description}
                               </Text>
                             </View>
-                            <Text style={styles.jobPrice}>{formatNLe(job.basePrice)}</Text>
                             <TouchableOpacity
                               style={styles.iconBtn}
                               onPress={() => openJobEdit(job)}
@@ -429,12 +412,6 @@ export default function AdminCatalogScreen() {
                       setIcon={setJobIcon}
                       color={jobColor}
                       setColor={setJobColor}
-                      basePrice={jobBasePrice}
-                      setBasePrice={setJobBasePrice}
-                      assessmentFee={jobAssessmentFee}
-                      setAssessmentFee={setJobAssessmentFee}
-                      duration={jobDuration}
-                      setDuration={setJobDuration}
                       categoryId={jobCategoryId}
                       setCategoryId={setJobCategoryId}
                       categories={categories}
@@ -530,12 +507,6 @@ interface JobFormProps {
   setIcon: (v: string) => void;
   color: string;
   setColor: (v: string) => void;
-  basePrice: number;
-  setBasePrice: (v: number) => void;
-  assessmentFee: number;
-  setAssessmentFee: (v: number) => void;
-  duration: string;
-  setDuration: (v: string) => void;
   categoryId: string;
   setCategoryId: (v: string) => void;
   categories: ServiceCategory[];
@@ -586,28 +557,6 @@ function JobForm(props: JobFormProps) {
         multiline
         numberOfLines={2}
       />
-      <TextField
-        label="Estimated Duration"
-        value={props.duration}
-        onChangeText={props.setDuration}
-        placeholder="e.g. 2-4 hours"
-      />
-      <View style={styles.formRow}>
-        <NumberField
-          label="Base Price"
-          value={props.basePrice}
-          onChangeNumber={props.setBasePrice}
-          prefix="NLe"
-          style={styles.flex1}
-        />
-        <NumberField
-          label="Assessment Fee"
-          value={props.assessmentFee}
-          onChangeNumber={props.setAssessmentFee}
-          prefix="NLe"
-          style={styles.flex1}
-        />
-      </View>
       <ColorPicker
         label="Color"
         value={props.color}
@@ -629,12 +578,9 @@ function JobForm(props: JobFormProps) {
             <View style={styles.flex1}>
               <Text style={styles.previewName}>{props.name || 'Service Name'}</Text>
               <Text style={styles.previewDesc}>
-                {props.duration || 'Duration'} · Fee: NLe {props.assessmentFee}
+                {props.description || 'Service description'}
               </Text>
             </View>
-            <Text style={styles.previewPrice}>
-              NLe {props.basePrice.toLocaleString('en-US')}
-            </Text>
           </View>
         </GlassCard>
       </View>
@@ -777,11 +723,6 @@ const styles = StyleSheet.create({
     color: COLORS.textTertiary,
     marginTop: 1,
   },
-  jobPrice: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.accent,
-  },
   iconBtn: {
     width: 32,
     height: 32,
@@ -921,10 +862,6 @@ const styles = StyleSheet.create({
   formContainer: {
     gap: SPACING.lg,
   },
-  formRow: {
-    flexDirection: 'row',
-    gap: SPACING.md,
-  },
   flex1: { flex: 1 },
   field: {
     gap: SPACING.xs,
@@ -992,10 +929,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textTertiary,
     marginTop: 2,
-  },
-  previewPrice: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.accent,
   },
 });

@@ -76,6 +76,7 @@ export type Database = {
         Row: {
           address: string | null
           after_photo: string | null
+          area: string | null
           before_photo: string | null
           booking_type: string
           completed_at: string | null
@@ -108,6 +109,7 @@ export type Database = {
         Insert: {
           address?: string | null
           after_photo?: string | null
+          area?: string | null
           before_photo?: string | null
           booking_type?: string
           completed_at?: string | null
@@ -140,6 +142,7 @@ export type Database = {
         Update: {
           address?: string | null
           after_photo?: string | null
+          area?: string | null
           before_photo?: string | null
           booking_type?: string
           completed_at?: string | null
@@ -314,6 +317,7 @@ export type Database = {
           account_type: string
           address: string | null
           approval_status: string
+          area: string | null
           business_name: string | null
           created_at: string
           email: string | null
@@ -327,6 +331,7 @@ export type Database = {
           account_type?: string
           address?: string | null
           approval_status?: string
+          area?: string | null
           business_name?: string | null
           created_at?: string
           email?: string | null
@@ -340,6 +345,7 @@ export type Database = {
           account_type?: string
           address?: string | null
           approval_status?: string
+          area?: string | null
           business_name?: string | null
           created_at?: string
           email?: string | null

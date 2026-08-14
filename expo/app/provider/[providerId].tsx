@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, RADIUS, ROLE_ACCENT } from '@/constants/colors';
-import { formatNLe } from '@/data/mock';
 import { useProvider, useReviewsForProvider, useAllJobs, useCategories } from '@/hooks/use-data';
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
@@ -174,10 +173,7 @@ export default function ProviderProfileScreen() {
                     </View>
                     <View style={styles.serviceInfo}>
                       <Text style={styles.serviceName}>{job.name}</Text>
-                      <Text style={styles.serviceCat}>{cat?.name} · {job.estimatedDuration}</Text>
-                    </View>
-                    <View style={styles.servicePrice}>
-                      <Text style={styles.servicePriceText}>{formatNLe(job.basePrice)}</Text>
+                      <Text style={styles.serviceCat}>{cat?.name}</Text>
                     </View>
                   </View>
                 );
@@ -463,12 +459,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textTertiary,
     marginTop: 2,
-  },
-  servicePrice: {},
-  servicePriceText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.navy,
   },
   ratingBreakdown: {
     flexDirection: 'row',

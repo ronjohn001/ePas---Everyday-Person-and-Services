@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, RADIUS } from '@/constants/colors';
 import { useCategories, useJob, useProviders } from '@/hooks/use-data';
-import { formatNLe } from '@/data/mock';
+import { useAuth } from '@/hooks/auth-store';
+import { formatDistance, nearestAreaDistanceKm } from '@/constants/areas';
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
 import { FlashingBookButton } from '@/components/FlashingBookButton';
@@ -25,14 +26,19 @@ export default function ServiceJobDetailScreen() {
   const { data: job, isLoading: jobLoading } = useJob(serviceJobId);
   const { data: categories } = useCategories();
   const { data: allProviders } = useProviders();
+  const { user } = useAuth();
 
   const category = useMemo(
     () => (job ? (categories ?? []).find((c) => c.id === job.categoryId) : undefined),
     [job, categories],
   );
+  // Nearest traders first — distance from the customer's area to each
+  // trader's nearest service area (unknown areas sort last).
   const providers = useMemo(
-    () => (job ? (allProviders ?? []).filter((p) => job.providerIds.includes(p.id)) : []),
-    [job, allProviders],
+    () => (job ? (allProviders ?? []).filter((p) => job.providerIds.includes(p.id)) : [])
+      .map((p) => ({ provider: p, distanceKm: nearestAreaDistanceKm(user?.area, p.serviceAreas) }))
+      .sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity)),
+    [job, allProviders, user?.area],
   );
 
   if (jobLoading) {
@@ -86,29 +92,7 @@ export default function ServiceJobDetailScreen() {
         <View style={styles.detailSection}>
           <Text style={styles.detailDesc}>{job.description}</Text>
 
-          <View style={styles.detailGrid}>
-            <View style={styles.detailCard}>
-              <View style={styles.detailCardIcon}>
-                <Ionicons name="cash-outline" size={20} color={COLORS.navy} />
-              </View>
-              <Text style={styles.detailCardLabel}>Base Price</Text>
-              <Text style={styles.detailCardValue}>{formatNLe(job.basePrice)}</Text>
-            </View>
-            <View style={styles.detailCard}>
-              <View style={styles.detailCardIcon}>
-                <Ionicons name="time-outline" size={20} color={COLORS.navy} />
-              </View>
-              <Text style={styles.detailCardLabel}>Duration</Text>
-              <Text style={styles.detailCardValue}>{job.estimatedDuration}</Text>
-            </View>
-            <View style={styles.detailCard}>
-              <View style={styles.detailCardIcon}>
-                <Ionicons name="clipboard-outline" size={20} color={COLORS.navy} />
-              </View>
-              <Text style={styles.detailCardLabel}>Assessment</Text>
-              <Text style={styles.detailCardValue}>{job.assessmentFee > 0 ? formatNLe(job.assessmentFee) : 'Free'}</Text>
-            </View>
-          </View>
+
         </View>
 
         {/* Booking type info */}
@@ -145,7 +129,7 @@ export default function ServiceJobDetailScreen() {
                 </Text>
               </View>
             ) : (
-              providers.map((provider) => (
+              providers.map(({ provider, distanceKm }) => (
               <Link key={provider.id} href={`/provider/${provider.id}`} asChild>
                 <TouchableOpacity style={styles.providerCard} activeOpacity={0.7}>
                   <View style={styles.providerLeft}>
@@ -173,6 +157,12 @@ export default function ServiceJobDetailScreen() {
                         <Ionicons name="location-outline" size={12} color={COLORS.textTertiary} />
                         <Text style={styles.providerAreaText}>{provider.serviceAreas.join(', ')}</Text>
                       </View>
+                      {distanceKm !== null && (
+                        <View style={styles.providerDistance}>
+                          <Ionicons name="navigate" size={11} color={COLORS.navy} />
+                          <Text style={styles.providerDistanceText}>{formatDistance(distanceKm)}</Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                   <View style={styles.providerRight}>
@@ -273,35 +263,21 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: SPACING.md,
   },
-  detailGrid: {
+  providerDistance: {
     flexDirection: 'row',
-    gap: SPACING.sm,
-  },
-  detailCard: {
-    flex: 1,
-    backgroundColor: COLORS.cardBg,
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
     alignItems: 'center',
     gap: 4,
+    alignSelf: 'flex-start',
+    marginTop: 2,
+    backgroundColor: `${COLORS.navy}0D`,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
   },
-  detailCardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: `${COLORS.navy}10`,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  detailCardLabel: {
+  providerDistanceText: {
     fontSize: 11,
-    color: COLORS.textTertiary,
-  },
-  detailCardValue: {
-    fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textPrimary,
-    textAlign: 'center',
+    color: COLORS.navy,
   },
   bookingTypeInfo: {
     paddingHorizontal: SPACING.lg,

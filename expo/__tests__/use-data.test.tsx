@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
-import { useBooking, useJob, useProvider, useProviderForUser } from '@/hooks/use-data';
+import { dedupeJobsByName, useAllJobs, useBooking, useJob, useProvider, useProviderForUser } from '@/hooks/use-data';
 
 /**
  * Regression tests for the "Query data cannot be undefined" crash:
@@ -42,9 +42,6 @@ const JOB_ROW: Record<string, unknown> = {
   description: 'Fix leaks and burst pipes',
   icon: 'water',
   color: '#4FC3F7',
-  base_price: 250,
-  assessment_fee: 50,
-  estimated_duration: '1-2h',
   provider_ids: ['prov-1'],
 };
 
@@ -171,7 +168,7 @@ describe('use-data lookups — found rows', () => {
 
     expect(result.current.data?.id).toBe('job-1');
     expect(result.current.data?.name).toBe('Plumbing Repair');
-    expect(result.current.data?.basePrice).toBe(250);
+    expect(result.current.data?.providerIds).toEqual(['prov-1']);
   });
 
   it('useProvider maps a live Supabase row to the app model', async () => {
@@ -200,5 +197,44 @@ describe('use-data lookups — disabled state', () => {
 
     expect(result.current.isFetched).toBe(false);
     expect(result.current.error).toBeNull();
+  });
+});
+
+// ─── Search must never show the same service name twice ──────────────────────
+
+describe('dedupeJobsByName', () => {
+  const job = (id: string, categoryId: string, name: string) => ({
+    id,
+    categoryId,
+    name,
+    description: '',
+    icon: 'build',
+    color: '#000',
+    providerIds: [] as string[],
+  });
+
+  it('keeps only the first row when the same name appears under different category ids (ignoring case)', () => {
+    const result = dedupeJobsByName([
+      job('job18', 'cat3', 'Car Driver'),
+      job('job34', 'cat6', 'car driver'),
+      job('job17', 'cat3', 'Biker'),
+    ]);
+    expect(result.map((j) => j.id)).toEqual(['job18', 'job17']);
+  });
+
+  it('leaves distinct names untouched', () => {
+    const result = dedupeJobsByName([job('a', 'c1', 'Painter'), job('b', 'c2', 'Welder')]);
+    expect(result.map((j) => j.id)).toEqual(['a', 'b']);
+  });
+});
+
+describe('useAllJobs — mock fallback', () => {
+  it('never returns duplicate service names', async () => {
+    mockSupabaseEnabled = false;
+    const { result } = await renderHook(() => useAllJobs(), { wrapper: makeWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const names = (result.current.data ?? []).map((j) => j.name.trim().toLowerCase());
+    expect(new Set(names).size).toBe(names.length);
   });
 });
