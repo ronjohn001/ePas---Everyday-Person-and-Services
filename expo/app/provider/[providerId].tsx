@@ -18,6 +18,7 @@ import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
 import { LogoutButton } from '@/components/LogoutButton';
 import { BackButton } from '@/components/BackButton';
+import { FlashingBookButton } from '@/components/FlashingBookButton';
 import { ScreenBackground } from '@/components/ScreenBackground';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -256,13 +257,11 @@ export default function ProviderProfileScreen() {
         <TouchableOpacity style={styles.messageBtn} onPress={() => router.push('/(tabs)/messages')}>
           <Ionicons name="chatbubble-outline" size={22} color={COLORS.navy} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.bookBtn}
+        <FlashingBookButton
+          label="Book Now"
+          fill
           onPress={() => providerJobs[0] && router.push(`/booking/create?jobId=${providerJobs[0].id}&providerId=${provider.id}`)}
-        >
-          <Text style={styles.bookBtnText}>Book Now</Text>
-          <Ionicons name="arrow-forward" size={18} color={COLORS.white} />
-        </TouchableOpacity>
+        />
       </View>
     </SafeAreaView>
   );
@@ -604,20 +603,5 @@ const styles = StyleSheet.create({
     backgroundColor: `${COLORS.navy}10`,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  bookBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.sm,
-    backgroundColor: COLORS.navy,
-    borderRadius: RADIUS.md,
-    height: 52,
-  },
-  bookBtnText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.white,
   },
 });

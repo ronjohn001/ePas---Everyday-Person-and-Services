@@ -16,6 +16,7 @@ import { useCategories, useJob, useProviders } from '@/hooks/use-data';
 import { formatNLe } from '@/data/mock';
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
+import { FlashingBookButton } from '@/components/FlashingBookButton';
 import { LogoutButton } from '@/components/LogoutButton';
 import { BackButton } from '@/components/BackButton';
 
@@ -179,12 +180,9 @@ export default function ServiceJobDetailScreen() {
                       <Ionicons name="time-outline" size={12} color={COLORS.green} />
                       <Text style={styles.providerResponseText}>{provider.responseTime}</Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.bookBtn}
+                    <FlashingBookButton
                       onPress={() => router.push(`/booking/create?jobId=${job.id}&providerId=${provider.id}`)}
-                    >
-                      <Text style={styles.bookBtnText}>Book</Text>
-                    </TouchableOpacity>
+                    />
                   </View>
                 </TouchableOpacity>
               </Link>
@@ -434,16 +432,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.green,
     fontWeight: '600',
-  },
-  bookBtn: {
-    backgroundColor: COLORS.navy,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: RADIUS.sm,
-  },
-  bookBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.white,
   },
 });
