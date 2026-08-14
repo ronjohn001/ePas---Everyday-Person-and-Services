@@ -106,12 +106,27 @@ export function useAllJobs() {
   return useQuery<ServiceJob[]>({
     queryKey: ['jobs', 'all'],
     queryFn: async () => {
-      if (!supabaseEnabled) return MOCK_JOBS;
+      if (!supabaseEnabled) return dedupeJobsByName(MOCK_JOBS);
       const { data, error } = await supabase.from('service_jobs').select('*').order('name');
       if (error) throw error;
-      return (data ?? []).map(mapJob);
+      return dedupeJobsByName((data ?? []).map(mapJob));
     },
     staleTime: FALLBACK_STALE,
+  });
+}
+
+/**
+ * The catalog can list the same service name under several categories (the
+ * rows differ only by category_id). Searches must not show duplicate services,
+ * so collapse case-insensitive name duplicates and keep the first row.
+ */
+export function dedupeJobsByName(jobs: ServiceJob[]): ServiceJob[] {
+  const seen = new Set<string>();
+  return jobs.filter((j) => {
+    const key = j.name.trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }
 
@@ -1175,9 +1190,6 @@ function mapJob(r: Row): ServiceJob {
     description: (r.description as string) ?? '',
     icon: r.icon as string,
     color: r.color as string,
-    basePrice: Number(r.base_price ?? 0),
-    assessmentFee: Number(r.assessment_fee ?? 0),
-    estimatedDuration: (r.estimated_duration as string) ?? '',
     providerIds: (r.provider_ids as string[]) ?? [],
   };
 }

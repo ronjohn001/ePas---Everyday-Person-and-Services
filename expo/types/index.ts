@@ -91,9 +91,6 @@ export interface ServiceJob {
   description: string;
   icon: string;
   color: string;
-  basePrice: number;
-  assessmentFee: number;
-  estimatedDuration: string;
   providerIds: string[];
   featured?: boolean;
 }
