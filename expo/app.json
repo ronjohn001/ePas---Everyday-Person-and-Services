@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "ePaS",
+    "slug": "epas",
+    "description": "everyday People and Skills - On-Demand Local Services for Sierra Leone",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/image1.png",
+    "scheme": "epas",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/image1.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.rork.epas",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "ePaS uses Face ID to quickly sign you back into your account."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/image1.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "app.rork.epas"
+    },
+    "web": {
+      "favicon": "./assets/images/image1.png"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://rork.com/"
+        }
+      ],
+      "expo-font",
+      "expo-web-browser",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "ePaS uses Face ID to quickly sign you back into your account."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
