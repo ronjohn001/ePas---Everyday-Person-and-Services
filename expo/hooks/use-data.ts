@@ -83,18 +83,19 @@ export function useJobsByCategory(categoryId: string | undefined) {
 }
 
 export function useJob(jobId: string | undefined) {
-  return useQuery<ServiceJob | undefined>({
+  return useQuery<ServiceJob | null>({
     queryKey: ['jobs', 'single', jobId],
     queryFn: async () => {
-      if (!jobId) return undefined;
-      if (!supabaseEnabled) return MOCK_JOBS.find((j) => j.id === jobId);
+      // React Query rejects undefined query data — use null for "not found".
+      if (!jobId) return null;
+      if (!supabaseEnabled) return MOCK_JOBS.find((j) => j.id === jobId) ?? null;
       const { data, error } = await supabase
         .from('service_jobs')
         .select('*')
         .eq('id', jobId)
         .maybeSingle();
       if (error) throw error;
-      return data ? mapJob(data) : undefined;
+      return data ? mapJob(data) : null;
     },
     enabled: !!jobId,
     staleTime: FALLBACK_STALE,
@@ -133,18 +134,19 @@ export function useProviders() {
 }
 
 export function useProvider(providerId: string | undefined) {
-  return useQuery<ProviderProfile | undefined>({
+  return useQuery<ProviderProfile | null>({
     queryKey: ['providers', 'single', providerId],
     queryFn: async () => {
-      if (!providerId) return undefined;
-      if (!supabaseEnabled) return MOCK_PROVIDERS.find((p) => p.id === providerId);
+      // React Query rejects undefined query data — use null for "not found".
+      if (!providerId) return null;
+      if (!supabaseEnabled) return MOCK_PROVIDERS.find((p) => p.id === providerId) ?? null;
       const { data, error } = await supabase
         .from('provider_profiles')
         .select('*')
         .eq('id', providerId)
         .maybeSingle();
       if (error) throw error;
-      return data ? mapProvider(data) : undefined;
+      return data ? mapProvider(data) : null;
     },
     enabled: !!providerId,
     staleTime: 60_000,
@@ -224,18 +226,19 @@ export function useAllBookings() {
 }
 
 export function useBooking(bookingId: string | undefined) {
-  return useQuery<Booking | undefined>({
+  return useQuery<Booking | null>({
     queryKey: ['bookings', 'single', bookingId],
     queryFn: async () => {
-      if (!bookingId) return undefined;
-      if (!supabaseEnabled) return MOCK_BOOKINGS.find((b) => b.id === bookingId);
+      // React Query rejects undefined query data — use null for "not found".
+      if (!bookingId) return null;
+      if (!supabaseEnabled) return MOCK_BOOKINGS.find((b) => b.id === bookingId) ?? null;
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
         .eq('id', bookingId)
         .maybeSingle();
       if (error) throw error;
-      return data ? mapBooking(data) : undefined;
+      return data ? mapBooking(data) : null;
     },
     enabled: !!bookingId,
     staleTime: 10_000,
@@ -621,12 +624,13 @@ export function usePointTransactions(userId: string | undefined) {
 /* ----------------------- Provider profile for user --------------------- */
 
 export function useProviderForUser(userId: string | undefined) {
-  return useQuery<ProviderProfile | undefined>({
+  return useQuery<ProviderProfile | null>({
     queryKey: ['providers', 'for-user', userId],
     queryFn: async () => {
-      if (!userId) return undefined;
+      // React Query rejects undefined query data — use null for "not found".
+      if (!userId) return null;
       if (!supabaseEnabled) {
-        return MOCK_PROVIDERS.find((p) => p.userId === userId) ?? MOCK_PROVIDERS[0];
+        return MOCK_PROVIDERS.find((p) => p.userId === userId) ?? MOCK_PROVIDERS[0] ?? null;
       }
       const { data, error } = await supabase
         .from('provider_profiles')
@@ -634,7 +638,7 @@ export function useProviderForUser(userId: string | undefined) {
         .eq('user_id', userId)
         .maybeSingle();
       if (error) throw error;
-      return data ? mapProvider(data) : undefined;
+      return data ? mapProvider(data) : null;
     },
     enabled: !!userId,
     staleTime: 60_000,
