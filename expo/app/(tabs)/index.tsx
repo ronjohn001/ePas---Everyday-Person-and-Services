@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/auth-store';
-import { router, Link, useLocalSearchParams } from 'expo-router';
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { router, Link } from 'expo-router';
+import { useState, useMemo, useCallback } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
@@ -8,7 +8,6 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Dimensions,
   RefreshControl,
   Platform,
@@ -17,17 +16,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, SPACING, RADIUS, SHADOWS, ROLE_ACCENT } from '@/constants/colors';
-import { formatDistance, nearestAreaDistanceKm } from '@/constants/areas';
+import { COLORS, SPACING, RADIUS, ROLE_ACCENT } from '@/constants/colors';
 import { useAds } from '@/hooks/ad-store';
-import { useCatalog } from '@/hooks/catalog-store';
 import { RatingStars } from '@/components/RatingStars';
 import { Badge } from '@/components/Badge';
 import { ScreenBackground } from '@/components/ScreenBackground';
 import { FlashingTick } from '@/components/FlashingTick';
 import { LogoutButton } from '@/components/LogoutButton';
 import { Image } from 'expo-image';
-import { useCategories, useAllJobs, useProviders, useSearchProviders, useCustomerBookings, useLoyalty, useReviewsByCustomer } from '@/hooks/use-data';
+import { useCategories, useAllJobs, useProviders, useCustomerBookings, useLoyalty, useReviewsByCustomer } from '@/hooks/use-data';
 import { useQueryClient } from '@tanstack/react-query';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -40,10 +37,6 @@ type SearchSectionKey = 'categories' | 'traders' | 'popular';
 export default function HomeScreen() {
   const { user } = useAuth();
   const { activeAdverts } = useAds();
-  const { search } = useLocalSearchParams<{ search?: string }>();
-  const [searchQuery, setSearchQuery] = useState('');
-  // Search only runs once the customer submits the string — never per keystroke.
-  const [submittedQuery, setSubmittedQuery] = useState('');
   const { data: myBookings = [] } = useCustomerBookings(user?.id);
   const { data: loyalty } = useLoyalty(user?.id);
   const { data: myReviews = [] } = useReviewsByCustomer(user?.id);
@@ -52,23 +45,6 @@ export default function HomeScreen() {
   const [isHeroMinimised, setIsHeroMinimised] = useState(false);
   const [openSearch, setOpenSearch] = useState<SearchSectionKey | null>(null);
   const queryClient = useQueryClient();
-
-  // Deep-linked from a Favourites "recent search" chip — pre-fill the search bar
-  useEffect(() => {
-    if (typeof search === 'string' && search.trim().length > 0) {
-      setSearchQuery(search);
-      setSubmittedQuery(search);
-    }
-  }, [search]);
-
-  const clearSearch = useCallback(() => {
-    setSearchQuery('');
-    setSubmittedQuery('');
-  }, []);
-
-  const submitSearch = useCallback(() => {
-    setSubmittedQuery(searchQuery.trim());
-  }, [searchQuery]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -126,31 +102,24 @@ export default function HomeScreen() {
                   </View>
                 </View>
 
-                {/* Search */}
-                <View style={styles.searchContainer}>
+                {/* Search — opens the dedicated full-screen search page */}
+                <TouchableOpacity
+                  style={styles.searchContainer}
+                  onPress={() => router.push('/search')}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel="Search services or traders"
+                >
                   <Ionicons name="search" size={18} color={COLORS.textTertiary} />
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search services or traders..."
-                    placeholderTextColor={COLORS.textTertiary}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    returnKeyType="search"
-                    onSubmitEditing={submitSearch}
-                  />
-                  {searchQuery.length > 0 && (
-                    <TouchableOpacity onPress={clearSearch}>
-                      <Ionicons name="close-circle" size={18} color={COLORS.textTertiary} />
-                    </TouchableOpacity>
-                  )}
-                </View>
+                  <Text style={styles.searchPlaceholder}>Search services or traders...</Text>
+                  <Ionicons name="options-outline" size={18} color={COLORS.accent} />
+                </TouchableOpacity>
               </View>
             </View>
           </View>
 
           {/* Profile hero — in view on open, minimisable */}
-          {!submittedQuery && (
-            isHeroMinimised ? (
+          {isHeroMinimised ? (
               <TouchableOpacity style={styles.heroMini} onPress={() => setIsHeroMinimised(false)} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Expand profile">
                 {user?.profilePhoto ? (
                   <Image source={{ uri: user.profilePhoto }} style={styles.heroMiniAvatarImg} contentFit="cover" transition={200} />
@@ -215,12 +184,10 @@ export default function HomeScreen() {
                   </View>
                 </View>
               </View>
-            )
-          )}
+            )}
 
           {/* Activity shortcuts — all current activities live behind these */}
-          {!submittedQuery && (
-            <View style={styles.shortcutRow}>
+          <View style={styles.shortcutRow}>
               <ShortcutTile
                 icon="briefcase"
                 color={COLORS.accent}
@@ -254,16 +221,9 @@ export default function HomeScreen() {
                 onPress={() => router.push('/favourites')}
               />
             </View>
-          )}
-
-          {/* Search results — mounted only after the customer submits a search */}
-          {submittedQuery.length > 0 && (
-            <SearchResults query={submittedQuery} userArea={user?.area} onSelect={clearSearch} />
-          )}
 
           {/* Advert carousel */}
-          {!submittedQuery && (
-            <View style={styles.advertSection}>
+          <View style={styles.advertSection}>
               <ScrollView
                 horizontal
                 pagingEnabled
@@ -321,11 +281,9 @@ export default function HomeScreen() {
                 ))}
               </View>
             </View>
-          )}
 
           {/* Searches — discovery sections live behind buttons and mount on demand */}
-          {!submittedQuery && (
-            <View style={styles.section}>
+          <View style={styles.section}>
               <Text style={styles.sectionTitle}>Searches</Text>
               <View style={styles.searchToggleRow}>
                 <SearchToggle
@@ -354,11 +312,9 @@ export default function HomeScreen() {
               {openSearch === 'traders' && <TopTradersPanel />}
               {openSearch === 'popular' && <PopularServicesPanel />}
             </View>
-          )}
 
           {/* Suggest a provider */}
-          {!submittedQuery && (
-            <View style={styles.section}>
+          <View style={styles.section}>
               <TouchableOpacity
                 style={styles.suggestCard}
                 onPress={() => router.push('/provider-suggestion')}
@@ -377,7 +333,6 @@ export default function HomeScreen() {
                 <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
               </TouchableOpacity>
             </View>
-          )}
 
           <View style={{ height: SPACING.xxl }} />
         </ScrollView>
@@ -523,90 +478,6 @@ function PopularServicesPanel() {
         })}
       </View>
     </View>
-  );
-}
-
-function SearchResults({ query, userArea, onSelect }: { query: string; userArea?: string; onSelect: () => void }) {
-  const { addRecentSearch } = useCatalog();
-  const { data: allJobs = [] } = useAllJobs();
-  const { data: categories = [] } = useCategories();
-  const { data: searchedProviders = [] } = useSearchProviders(query);
-
-  const filteredJobs = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return allJobs.filter(
-      j => j.name.toLowerCase().includes(q) || j.description.toLowerCase().includes(q)
-    ).slice(0, 8);
-  }, [query, allJobs]);
-
-  // Nearest traders first; distance = customer's area to the trader's nearest service area.
-  const rankedProviders = useMemo(
-    () => searchedProviders
-      .map((p) => ({ provider: p, distanceKm: nearestAreaDistanceKm(userArea, p.serviceAreas) }))
-      .sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity)),
-    [searchedProviders, userArea]
-  );
-
-  const handleSelect = () => {
-    addRecentSearch(query);
-    onSelect();
-  };
-
-  if (filteredJobs.length === 0 && searchedProviders.length === 0) return null;
-
-  return (
-    <>
-      {filteredJobs.length > 0 && (
-        <View style={styles.searchResults}>
-          <Text style={styles.searchResultsTitle}>Services</Text>
-          {filteredJobs.map((job) => {
-            const cat = categories.find(c => c.id === job.categoryId);
-            return (
-              <Link key={job.id} href={`/category/${job.categoryId}`} asChild>
-                <TouchableOpacity style={styles.searchResultItem} onPress={handleSelect} activeOpacity={0.7}>
-                  <View style={[styles.searchResultIcon, { backgroundColor: `${job.color}20`, borderColor: `${job.color}30` }]}>
-                    <Ionicons name={job.icon as any} size={18} color={job.color} />
-                  </View>
-                  <View style={styles.searchResultText}>
-                    <Text style={styles.searchResultName}>{job.name}</Text>
-                    <Text style={styles.searchResultCat}>{cat?.name}</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={16} color={COLORS.textTertiary} />
-                </TouchableOpacity>
-              </Link>
-            );
-          })}
-        </View>
-      )}
-      {rankedProviders.length > 0 && (
-        <View style={styles.searchResults}>
-          <Text style={styles.searchResultsTitle}>Traders</Text>
-          {rankedProviders.map(({ provider: p, distanceKm }) => (
-            <Link key={p.id} href={`/provider/${p.id}`} asChild>
-              <TouchableOpacity style={styles.searchResultItem} onPress={handleSelect} activeOpacity={0.7}>
-                <View style={[styles.searchResultIcon, { backgroundColor: 'rgba(34,229,255,0.12)', borderColor: 'rgba(34,229,255,0.25)' }]}>
-                  <Ionicons name="person" size={18} color={COLORS.cyan} />
-                </View>
-                <View style={styles.searchResultText}>
-                  <Text style={styles.searchResultName}>{p.name}</Text>
-                  <Text style={styles.searchResultCat}>
-                    {p.serviceAreas.slice(0, 2).join(', ') || 'Trader'} · {p.overallRating.toFixed(1)}★
-                  </Text>
-                </View>
-                {distanceKm !== null && (
-                  <View style={styles.distanceChip}>
-                    <Ionicons name="navigate" size={10} color={COLORS.accent} />
-                    <Text style={styles.distanceChipText}>{formatDistance(distanceKm)}</Text>
-                  </View>
-                )}
-                <Ionicons name="chevron-forward" size={16} color={COLORS.textTertiary} />
-              </TouchableOpacity>
-            </Link>
-          ))}
-        </View>
-      )}
-    </>
   );
 }
 
@@ -811,58 +682,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.glassBorder,
   },
-  searchInput: {
+  searchPlaceholder: {
     flex: 1,
     paddingVertical: 11,
     fontSize: 14,
-    color: COLORS.textPrimary,
-  },
-
-  // Search results
-  searchResults: {
-    marginHorizontal: CONTENT_PADDING,
-    marginTop: SPACING.sm,
-    borderRadius: RADIUS.md,
-    padding: SPACING.sm,
-    backgroundColor: COLORS.glassBg,
-    borderWidth: 1,
-    borderColor: COLORS.glassBorder,
-    ...SHADOWS.card,
-  },
-  searchResultsTitle: {
-    fontSize: 11,
-    fontWeight: '700',
     color: COLORS.textTertiary,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  searchResultItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.sm,
-    gap: SPACING.sm,
-  },
-  searchResultIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-  },
-  searchResultText: { flex: 1 },
-  searchResultName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-  },
-  searchResultCat: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
   },
 
   // Advert
@@ -1148,23 +972,6 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     color: COLORS.textTertiary,
   },
-  distanceChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(0,255,163,0.10)',
-    borderWidth: 1,
-    borderColor: 'rgba(0,255,163,0.25)',
-    borderRadius: RADIUS.pill,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  distanceChipText: {
-    fontSize: 10.5,
-    fontWeight: '700',
-    color: COLORS.accent,
-  },
-
   // Suggest
   suggestCard: {
     flexDirection: 'row',

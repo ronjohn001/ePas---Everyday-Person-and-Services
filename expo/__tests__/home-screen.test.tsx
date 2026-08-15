@@ -10,12 +10,8 @@ import { useAllJobs, useCategories, useProviders } from '@/hooks/use-data';
 
 // ─── Module mocks ────────────────────────────────────────────────────────────
 
-let mockSearchParams: { search?: string } = {};
-const mockAddRecentSearch = jest.fn();
-
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), replace: jest.fn(), back: jest.fn() },
-  useLocalSearchParams: () => mockSearchParams,
   Link: ({ children }: { children?: ReactNode }) => children ?? null,
 }));
 
@@ -39,14 +35,6 @@ jest.mock('@/hooks/auth-store', () => ({
 
 jest.mock('@/hooks/ad-store', () => ({
   useAds: () => ({ activeAdverts: [] }),
-}));
-
-jest.mock('@/hooks/catalog-store', () => ({
-  useCatalog: () => ({
-    recentSearches: [],
-    addRecentSearch: mockAddRecentSearch,
-    clearRecentSearches: jest.fn(),
-  }),
 }));
 
 jest.mock('@/hooks/use-data', () => ({
@@ -86,27 +74,6 @@ jest.mock('@/hooks/use-data', () => ({
       },
     ],
     isLoading: false,
-  })),
-  useSearchProviders: jest.fn(() => ({
-    data: [
-      {
-        id: 'p1',
-        userId: 'u2',
-        name: 'Foday Koroma',
-        bio: 'Pro plumber',
-        experienceYears: 5,
-        approvalStatus: 'APPROVED',
-        providerTier: 'SILVER',
-        overallRating: 4.6,
-        totalReviews: 12,
-        completedJobs: 34,
-        badgeLevel: 'RISING_STAR',
-        serviceAreas: ['Brookfields'],
-        serviceCategoryIds: ['c1'],
-        responseTime: '~2h',
-        verified: true,
-      },
-    ],
   })),
   useCustomerBookings: jest.fn(() => ({
     data: [
@@ -181,7 +148,6 @@ async function renderHome() {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockSearchParams = {};
 });
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
@@ -277,43 +243,9 @@ describe('Customer Home', () => {
     expect(mockPush).toHaveBeenCalledWith('/favourites');
   });
 
-  it('only searches once the string is submitted — never on each keystroke', async () => {
+  it('opens the dedicated search screen when the search bar is tapped', async () => {
     await renderHome();
-    const input = screen.getByPlaceholderText('Search services or traders...');
-    await fireEvent.changeText(input, 'plumb');
-
-    // Typing alone must not run a search: discovery sections stay put
-    expect(screen.getByText('Searches')).toBeTruthy();
-    expect(screen.queryByText('Services')).toBeNull();
-
-    await fireEvent(input, 'submitEditing');
-    expect(screen.queryByText('Searches')).toBeNull();
-    expect(screen.getByText('Services')).toBeTruthy();
-    expect(screen.getByText('Plumbing Repair')).toBeTruthy();
-    expect(screen.getByText('Traders')).toBeTruthy();
-
-    await fireEvent.press(screen.getByText('Foday Koroma'));
-    expect(mockAddRecentSearch).toHaveBeenCalledWith('plumb');
-
-    // Selection clears the query and restores the discovery sections
-    expect(screen.getByText('Searches')).toBeTruthy();
-  });
-
-  it("shows the trader's distance from the customer's area in search results", async () => {
-    await renderHome();
-    const input = screen.getByPlaceholderText('Search services or traders...');
-    await fireEvent.changeText(input, 'foday');
-    await fireEvent(input, 'submitEditing');
-
-    // Customer is in Lumley, trader serves Brookfields → distance chip appears
-    expect(screen.getByText(/km away|Nearby/)).toBeTruthy();
-  });
-
-  it('pre-fills the search bar when deep-linked with a search term', async () => {
-    mockSearchParams = { search: 'plumb' };
-    await renderHome();
-
-    expect(screen.getByPlaceholderText('Search services or traders...').props.value).toBe('plumb');
-    expect(screen.getByText('Plumbing Repair')).toBeTruthy();
+    await fireEvent.press(screen.getByLabelText('Search services or traders'));
+    expect(mockPush).toHaveBeenCalledWith('/search');
   });
 });

@@ -89,7 +89,7 @@ export default function FavouritesScreen() {
   };
 
   const runSearch = (term: string) => {
-    router.push({ pathname: '/(tabs)', params: { search: term } });
+    router.push({ pathname: '/search', params: { q: term } });
   };
 
   return (
@@ -119,7 +119,7 @@ export default function FavouritesScreen() {
             </View>
           ) : (
             <>
-              {/* Recent searches — tap to re-run on Home */}
+              {/* Recent searches — tap to re-run in Search */}
               {recentSearches.length > 0 && (
                 <View style={styles.section}>
                   <View style={styles.sectionHeader}>

@@ -82,6 +82,7 @@ function AuthenticatedApp() {
       <Stack.Screen name="calendar" options={{ headerShown: false }} />
       <Stack.Screen name="my-reviews" options={{ headerShown: false }} />
       <Stack.Screen name="favourites" options={{ headerShown: false }} />
+      <Stack.Screen name="search" options={{ headerShown: false }} />
       <Stack.Screen name="notifications" options={{ headerShown: false }} />
       <Stack.Screen name="provider-suggestion" options={{ headerShown: false }} />
       <Stack.Screen name="subscriptions" options={{ headerShown: false }} />
